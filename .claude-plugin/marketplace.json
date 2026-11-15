@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "goofyfish",
+  "owner": {
+    "name": "Kamran Ahmed"
+  },
+  "metadata": {
+    "description": "Make small, silly browser games for goofyfish.com"
+  },
+  "plugins": [
+    {
+      "name": "goofyfish",
+      "source": "./plugin",
+      "description": "Make a goofyfish game in the house style and send it in as a pull request",
+      "homepage": "https://goofyfish.com/make"
+    }
+  ]
+}

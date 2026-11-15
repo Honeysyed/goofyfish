@@ -6,14 +6,15 @@ import { Logo } from '~/components/logo';
 import { SITE } from '~/lib/games';
 import { seo } from '~/lib/seo';
 
-const SKILL_PATH = '.claude/skills/make-goofyfish-game';
+const SKILL_PATH = 'plugin/skills/make-goofyfish-game';
+const REPO = SITE.github.replace('https://github.com/', '');
 const SKILL_URL = `${SITE.github}/tree/main/${SKILL_PATH}`;
 
 export function meta(_: Route.MetaArgs) {
   return seo({
     title: `Make your own game · ${SITE.name}`,
     description:
-      'Every goofyfish game is one HTML file. Clone the repo, ask Claude Code to make a game with the goofyfish skill, and send a pull request.',
+      'Install the goofyfish skill for Claude Code, describe your game, and it builds it in the house style, draws the thumbnail and opens a pull request.',
     path: '/make',
   });
 }
@@ -86,35 +87,43 @@ export default function Make() {
         <Logo className='size-20' />
         <h1 className='font-display mt-6 text-[38px] leading-[1.08] text-balance sm:text-[50px]'>Make your own game</h1>
         <p className='mt-4 max-w-md text-[16px] leading-relaxed text-pretty text-neutral-500 sm:text-[17px]'>
-          Every game here is a single HTML file you can read. The repo comes with a Claude Code skill that knows the house
-          style, builds a game with you and gets it ready to send in.
+          Install the goofyfish skill for Claude Code and describe your idea. It builds the game in the house style, plays it,
+          draws the thumbnail and sends it in as a pull request.
         </p>
       </header>
 
       <ol className='mt-12 flex flex-col gap-4'>
-        <Step n={1} title='Get the code'>
-          You need Node and pnpm.
-          <Code>{`git clone ${SITE.github}.git\ncd goofyfish\npnpm install`}</Code>
-        </Step>
-
-        <Step n={2} title='Ask Claude Code for a game'>
-          Open the folder in{' '}
+        <Step n={1} title='Install the skill'>
+          In{' '}
           <a href='https://claude.com/claude-code' className='text-neutral-900 underline decoration-neutral-300 underline-offset-2'>
             Claude Code
-          </a>{' '}
-          and describe your idea, or ask it to pitch a few. The <span className='font-mono text-[13px]'>make-goofyfish-game</span> skill
-          picks it up, builds the game from the starter template and plays it to check it works.
+          </a>
+          , run:
+          <Code>{`/plugin install goofyfish --marketplace ${REPO}`}</Code>
+          <p className='mt-3 text-[14px] text-neutral-500'>
+            You also need Node 20+, pnpm and the{' '}
+            <a href='https://cli.github.com' className='text-neutral-900 underline decoration-neutral-300 underline-offset-2'>
+              GitHub CLI
+            </a>{' '}
+            signed in.
+          </p>
+        </Step>
+
+        <Step n={2} title='Ask for a game'>
+          From any folder, describe your idea, or ask it to pitch a few. It forks and clones the repo, builds the game from the
+          starter template and plays it at phone and laptop sizes to check it works.
           <Code>{'claude "make a goofyfish game where you keep a balloon in the air"'}</Code>
         </Step>
 
-        <Step n={3} title='Play it'>
-          Start the site and open your game. Try it on your phone too.
-          <Code>{'pnpm dev'}</Code>
+        <Step n={3} title='Play it, tweak it'>
+          Open the link it gives you and play. Ask for changes until it feels right: faster, goofier, a new twist. It also
+          takes the screenshot for link previews and draws the card thumbnail in the stick-figure style (that part uses your{' '}
+          <span className='font-mono text-[13px]'>OPENAI_API_KEY</span>; without one, we draw it for you).
         </Step>
 
-        <Step n={4} title='Send it in'>
-          The skill adds the card thumbnail, the share image and the entry in the game list. Open a pull request on GitHub with a
-          screenshot. We play it, maybe suggest a tweak, and put it on the site.
+        <Step n={4} title='It opens the pull request'>
+          When you say go, it pushes the game to your fork and opens a pull request with a screenshot. We play it, maybe
+          suggest a tweak, and put it on the site.
         </Step>
       </ol>
 
@@ -129,7 +138,7 @@ export default function Make() {
           ))}
         </ul>
         <p className='mt-4 text-[14px] leading-relaxed text-neutral-500'>
-          Not using Claude Code? The skill is plain text: read{' '}
+          Already cloned the repo? The skill comes with it, just ask for a game. Not using Claude Code? The skill is plain text: read{' '}
           <a href={`${SKILL_URL}/SKILL.md`} className='text-neutral-900 underline decoration-neutral-300 underline-offset-2'>
             the steps
           </a>{' '}

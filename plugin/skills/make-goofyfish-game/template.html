@@ -578,6 +578,9 @@ async function share(res) {
 }
 
 $('startFoot').innerHTML = lifetimeLine();
+if (Q.has('autoplay')) {
+  startGame();
+}
 
 let last = performance.now();
 function frame(now) {
