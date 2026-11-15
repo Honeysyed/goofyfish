@@ -26,16 +26,10 @@
   --color-umber: #78350f;
   --color-amber-ink: #b45309;
 
-  --animate-bob: bob 3.2s ease-in-out infinite;
   --animate-blink: blink 1.1s steps(1) infinite;
 
   @keyframes blink {
     50% { opacity: 0; }
-  }
-
-  @keyframes bob {
-    0%, 100% { transform: translateY(0) rotate(-4deg); }
-    50% { transform: translateY(-6px) rotate(4deg); }
   }
 }
 
@@ -49,16 +43,7 @@ body {
   background-color: #f7f7f5;
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  .animate-bob,
   .animate-blink {
     animation: none;
   }

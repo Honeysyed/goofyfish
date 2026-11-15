@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { chromium } from 'playwright';
@@ -5,13 +6,35 @@ import { chromium } from 'playwright';
 const args = process.argv.slice(2);
 const slug = args.find((a) => !a.startsWith('--'));
 const retakeOg = args.includes('--og');
-const base = process.env.BASE_URL ?? 'http://localhost:5173';
 
 if (!slug) {
-  console.error('Usage: pnpm game:check <slug> [--og]   (with `pnpm dev` running)');
+  console.error('Usage: pnpm game:check <slug> [--og]');
   console.error('  --og   retake public/og/<slug>.jpg even if it exists');
   process.exit(1);
 }
+
+if (!existsSync(`public/games/${slug}.html`)) {
+  console.error(`public/games/${slug}.html does not exist.`);
+  process.exit(1);
+}
+
+function devServerUrl() {
+  const astro = (...cmd) =>
+    execFileSync(process.execPath, ['node_modules/astro/bin/astro.mjs', 'dev', ...cmd], { encoding: 'utf8' });
+  const running = astro('status').match(/https?:\/\/[^\s"\\]+/);
+  if (running) {
+    return running[0];
+  }
+  console.log('Starting the dev server in the background (stop it with `pnpm astro dev stop`)...');
+  const started = astro('--background').match(/https?:\/\/[^\s"\\]+/);
+  if (!started) {
+    console.error('Could not start the dev server. Run `pnpm dev` and try again.');
+    process.exit(1);
+  }
+  return started[0];
+}
+
+const base = (process.env.BASE_URL ?? devServerUrl()).replace(/\/$/, '');
 
 const url = `${base}/games/${slug}.html`;
 const shots = 'tmp/check';

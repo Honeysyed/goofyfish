@@ -1,0 +1,52 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '~/layouts/Base.astro';
+import { games, type Game } from '~/lib/games';
+import { absoluteUrl, SITE } from '~/lib/site';
+
+export const getStaticPaths = (() => {
+  return games.map((game) => ({ params: { slug: game.slug }, props: { game } }));
+}) satisfies GetStaticPaths;
+
+type Props = { game: Game };
+
+const game = Astro.props.game;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'VideoGame',
+  name: game.name,
+  url: absoluteUrl(`/${game.slug}`),
+  description: game.description,
+  gamePlatform: 'Web browser',
+  applicationCategory: 'Game',
+  operatingSystem: 'Any',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  author: { '@type': 'Person', name: SITE.author.name, url: SITE.author.url },
+};
+---
+
+<Base
+  title={`${game.name} · ${SITE.name}`}
+  description={game.description}
+  path={`/${game.slug}`}
+  image={`/og/${game.slug}.jpg`}
+  jsonLd={jsonLd}
+>
+  <main class='fixed inset-0 overflow-hidden overscroll-none bg-white'>
+    <h1 class='sr-only'>{game.name}</h1>
+    <p class='sr-only'>{game.description}</p>
+    <iframe
+      id='game'
+      data-src={`/games/${game.slug}.html`}
+      title={game.name}
+      allow='camera; microphone; fullscreen; autoplay; web-share; clipboard-write'
+      class='block h-dvh w-full border-0'></iframe>
+    <script is:inline>
+      {
+        const frame = document.getElementById('game');
+        frame.addEventListener('load', () => frame.contentWindow.focus());
+        frame.src = frame.dataset.src + location.search;
+      }
+    </script>
+  </main>
+</Base>

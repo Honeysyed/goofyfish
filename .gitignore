@@ -2,8 +2,8 @@
 .env
 /node_modules/
 
-# React Router
-/.react-router/
+# Astro
+/.astro/
 /build/
 
 /tmp/

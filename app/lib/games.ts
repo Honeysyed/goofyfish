@@ -4,19 +4,9 @@ export type Game = {
   tagline: string;
   description: string;
   addedAt: string;
-  controls: string;
-  needs?: string;
+  controls: 'tap' | 'hold' | 'swipe' | 'aim' | 'steer' | 'arrows' | 'draw' | 'body';
+  needs?: 'webcam';
   hidden?: boolean;
-};
-
-export const SITE = {
-  name: 'Goofy Fish',
-  url: 'https://goofyfish.com',
-  tagline: 'Small, silly games for the browser',
-  description:
-    'Small, silly games that run in your browser. Free, no ads, no sign-ups, no downloads. Best with sound on.',
-  twitter: '@nilbuild',
-  github: 'https://github.com/nilbuild/goofyfish',
 };
 
 const allGames: Game[] = [
@@ -149,19 +139,8 @@ const allGames: Game[] = [
   },
 ];
 
-const sorted = [...allGames].sort((a, b) => b.addedAt.localeCompare(a.addedAt));
-
-export const games = sorted.filter((g) => !g.hidden);
-
-export function findGame(slug: string | undefined) {
-  if (!slug) {
-    return undefined;
-  }
-
-  return sorted.find((g) => g.slug === slug);
-}
+export const games = allGames.filter((g) => !g.hidden).sort((a, b) => b.addedAt.localeCompare(a.addedAt));
 
 export function isNew(game: Game) {
-  const latest = games[0].addedAt;
-  return game.addedAt === latest;
+  return game.addedAt === games[0].addedAt;
 }

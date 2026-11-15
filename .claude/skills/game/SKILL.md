@@ -80,13 +80,13 @@ Rules:
 
 ## 4. Play it
 
-Start the dev server in the background with `pnpm dev`, then run:
+Run:
 
 ```bash
 pnpm game:check <slug>
 ```
 
-It loads the game at phone and laptop sizes, presses Play, fails on any console error and saves screenshots to `tmp/check/`. With a `?bot` mode it also plays three bot runs and prints how long each lasted, and if `public/og/<slug>.jpg` doesn't exist yet it takes the social image 7 seconds into a bot run. Pass `--og` to retake that image; otherwise it's left alone.
+It starts the dev server in the background if one isn't running (`pnpm astro dev status` shows its URL, `pnpm astro dev stop` stops it), loads the game at phone and laptop sizes, presses Play, fails on any console error and saves screenshots to `tmp/check/`. With a `?bot` mode it also plays three bot runs and prints how long each lasted, and if `public/og/<slug>.jpg` doesn't exist yet it takes the social image 7 seconds into a bot run. Pass `--og` to retake that image; otherwise it's left alone.
 
 Look at every screenshot. Aim for bot runs of at least 20 seconds (a first-timer should get that far) and well under 3 minutes (the difficulty has to ramp). Tune, then run the check again.
 
@@ -123,9 +123,9 @@ Add an entry at the top of the array in `app/lib/games.ts`:
 },
 ```
 
-`controls` is one word: `tap`, `hold`, `swipe`, `aim`, `steer`, `arrows`, `draw` or `body`. Add `needs: 'webcam'` if it needs a camera. `addedAt` is today. Only the games with the newest `addedAt` get the "New" badge, so adding one moves the badge to it; that's expected.
+`controls` is one word: `tap`, `hold`, `swipe`, `aim`, `steer`, `arrows`, `draw` or `body` (the type rejects anything else). Add `needs: 'webcam'` if it needs a camera. `addedAt` is today. Only the games with the newest `addedAt` get the "New" badge, so adding one moves the badge to it; that's expected.
 
-Run `pnpm typecheck` and `pnpm build`, then open `http://localhost:5173/<slug>` and `http://localhost:5173/` to see it inside the site.
+Run `pnpm typecheck` and `pnpm build`, then open `/<slug>` and `/` on the dev server (`http://localhost:5173` unless `pnpm astro dev status` says otherwise) to see it inside the site.
 
 ## 7. Open the pull request
 
