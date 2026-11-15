@@ -96,7 +96,6 @@
   #hint.hidden { opacity: 0; }
   @media (max-height: 520px) {
     #hint { bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); left: auto; right: max(16px, env(safe-area-inset-right, 0px)); transform: none; font-size: 13px; }
-    #endBtn { bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); }
   }
   kbd { font: inherit; font-size: 12px; color: #5a5a5a; background: var(--chip); box-shadow: 0 0 0 1px rgba(0, 0, 0, .07); border-radius: 6px; padding: 3px 8px; line-height: 1.25; }
   @media (hover: none) { .kbd-only { display: none !important; } }
@@ -145,9 +144,6 @@
   .logo svg { width: 26px; height: 26px; }
   .title { font-size: 32px; line-height: 1; margin: 0; }
   .keys { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--muted); font-size: 15px; margin: 18px 0 10px; }
-  .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; padding: 4px; border-radius: 12px; background: var(--chip); margin: 0 0 14px; }
-  .mode { height: 38px; border-radius: 9px; font-size: 14.5px; color: var(--muted); transition: background .2s, color .2s, box-shadow .2s; }
-  .mode.on { background: #fff; color: var(--ink); box-shadow: 0 0 0 1px rgba(0, 0, 0, .06), 0 1px 3px rgba(0, 0, 0, .06); }
   #startCard .title { margin-bottom: 2px; }
   #startCard .keys { margin: 12px 0 16px; }
   #startCard { padding: 22px; width: min(330px, 100%); }
@@ -157,9 +153,6 @@
   .meter.full #meterFill { background: var(--amber); }
   .meter .label { font-size: 11px; letter-spacing: 1px; }
   .meter.full .label { color: var(--amber); }
-  #kidsTag { display: none; font-size: 12px; color: var(--amber); padding-left: 12px; border-left: 1px solid var(--line); }
-  body.kids #hearts { display: none; }
-  body.kids #kidsTag { display: block; }
   #slamBtn {
     position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 54px); transform: translate(-50%, 10px) scale(.96);
     display: flex; align-items: center; gap: 8px; height: 46px; padding: 0 18px; border-radius: 12px; font-size: 16px;
@@ -170,12 +163,6 @@
   #slamBtn kbd { background: rgba(255, 255, 255, .55); color: #92400e; box-shadow: none; }
   @keyframes pulse { 50% { box-shadow: 0 0 0 1px rgba(180, 83, 9, .25), 0 0 0 7px rgba(252, 211, 77, .35); } }
   @media (max-height: 520px) { #slamBtn { bottom: calc(env(safe-area-inset-bottom, 0px) + 10px); height: 38px; font-size: 14px; } .mbar { width: 60px; } }
-  #endBtn {
-    position: fixed; left: max(14px, env(safe-area-inset-left, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 54px);
-    height: 30px; padding: 0 12px; border-radius: 9px; font-size: 13px; color: var(--muted);
-    background: rgba(255, 255, 255, .85); box-shadow: 0 0 0 1px rgba(0, 0, 0, .08); display: none;
-  }
-  body.kids.playing #endBtn { display: block; }
   .tag { color: var(--muted); font-size: 15px; line-height: 1.5; margin: 0 0 26px; }
   .chip { display: inline-flex; align-items: center; font-size: 13px; padding: 3px 9px; border-radius: 7px; background: var(--butter); color: var(--umber); white-space: nowrap; }
   .actions { display: flex; gap: 10px; }
@@ -224,7 +211,7 @@
       <div class="stat"><div id="best">0</div><div class="label">Best</div></div>
     </div>
     <div class="distrow">
-      <div class="korow"><div id="dist"><span id="kosN">0</span><span class="unit">KOs</span></div><div id="hearts"></div><div id="kidsTag">kids</div></div>
+      <div class="korow"><div id="dist"><span id="kosN">0</span><span class="unit">KOs</span></div><div id="hearts"></div></div>
       <div class="meter" id="meter"><div class="mbar"><div id="meterFill"></div></div><div class="label">SLAM</div></div>
       <div class="label" id="distLabel">Alley</div>
     </div>
@@ -244,10 +231,6 @@
     <h1 class="title">Keep punching</h1>
     <div class="keys kbd-only"><kbd>&larr;</kbd><kbd>&rarr;</kbd> strike <kbd>&uarr;</kbd> jump <kbd>&darr;</kbd> slam</div>
     <div class="keys touch-only">Tap a side to strike, swipe up to jump</div>
-    <div class="modes" id="modes">
-      <button class="mode" data-mode="normal">Normal</button>
-      <button class="mode" data-mode="kids">Kids · can't lose</button>
-    </div>
     <div class="actions">
       <button class="btn primary" id="playBtn"><span>Fight</span><kbd class="kbd-only">Space</kbd></button>
     </div>
@@ -274,17 +257,16 @@
   </div>
 </div>
 
-<button id="endBtn" aria-label="End this run">End</button>
 <button id="slamBtn"><kbd class="kbd-only">&darr;</kbd><span class="touch-only">Tap</span><span>SLAM</span></button>
 <div id="toast"></div>
 <script id="core">
 const DT = 1 / 120;
 const REACH = 122, SPAWN = 500, AIR_REACH = 160, THROW_D = 262, LEAP_D = 250, SWEEP_D = 100, CRATE_D = 94, CRATE_FROM = 440;
 const TUNE = {
-  strike: 0.1, whiff: 0.34, inv: 0.9, queueAge: 0.24, hsP: 0.09, hsG: 0.07, hsO: 0.05, hsHurt: 0.13,
-  slowT: 0.6, slowK: 0.25, feintT: 0.5, feintD: 34, flipT: 0.46, landT: 0.2, backT: 0.36, perfect: 0.56, good: 0.26, hp: 3, gap: 44,
-  jumpT: 0.6, clearH: 0.3, airStrike: 0.12, furyBand: 26, slamT: 0.5, meter: 34, chuteT: 3.1, aimT: 0.6, retT: 0.34, crouchT: 0.36, leapT: 0.66,
-  sweepT: 0.6, openT: 1.05, tossT: 0.78, restT: 1.9,
+  strike: 0.1, whiff: 0.34, inv: 1.3, queueAge: 0.24, hsP: 0.09, hsG: 0.07, hsO: 0.05, hsHurt: 0.13,
+  slowT: 0.6, slowK: 0.25, feintT: 0.5, feintD: 34, flipT: 0.46, landT: 0.2, backT: 0.36, perfect: 0.5, good: 0.22, hp: 3, gap: 44,
+  jumpT: 0.6, clearH: 0.26, airStrike: 0.12, furyBand: 26, cap: 5, slamT: 0.3, slipT: 1.3, lungeT: 0.2, meter: 26, chuteT: 3.1, aimT: 0.6, retT: 0.34, crouchT: 0.46, leapT: 0.72,
+  sweepT: 0.8, openT: 1.15, tossT: 0.78, restT: 1.9,
 };
 const KINDS = {
   grunt: { speed: 1, hp: 1, stop: 58, wind: 1 },
@@ -306,23 +288,23 @@ const NOTE = {
   barrel: 'barrel · {up} to jump it', thrower: 'thrower · punch the bottle back', crate: 'crate · smash it for a power-up', leaper: 'leaper · hit him in the air',
   sweeper: 'sweeper · jump the sweep, then hit', skater: 'skater · too low to punch, {up}',
 };
-const FIRST = { 7: 'barrel', 12: 'runner', 18: 'thrower', 22: 'crate', 26: 'armour', 37: 'leaper', 46: 'feint', 55: 'pair', 66: 'sweeper', 82: 'staff', 100: 'boss', 112: 'skater' };
+const FIRST = { 15: 'peel', 7: 'barrel', 12: 'runner', 18: 'thrower', 22: 'crate', 26: 'armour', 37: 'leaper', 46: 'feint', 55: 'pair', 66: 'sweeper', 82: 'staff', 100: 'boss', 112: 'skater' };
 const MIX = [
-  ['runner', 12, 0.1, 0.14], ['barrel', 7, 0.07, 0.09], ['thrower', 18, 0.06, 0.08], ['armour', 24, 0.08, 0.11], ['crate', 22, 0.05, 0.05],
+  ['peel', 15, 0.035, 0.035], ['runner', 12, 0.1, 0.14], ['barrel', 7, 0.07, 0.09], ['thrower', 18, 0.06, 0.08], ['armour', 24, 0.08, 0.11], ['crate', 22, 0.065, 0.065],
   ['leaper', 37, 0.06, 0.08], ['feint', 46, 0.07, 0.09], ['pair', 55, 0.05, 0.07], ['sweeper', 66, 0.05, 0.08], ['staff', 82, 0.07, 0.09], ['skater', 112, 0.05, 0.08],
 ];
 const ZONES = [
   { at: 0, d: 0, name: 'Alley', where: 'in the Alley', sub: 'Strike in reach. Jump the barrels' },
-  { at: 25, d: 0.4, name: 'Dojo', where: 'in the Dojo', sub: 'Smash crates for power-ups. Hit leapers mid-air' },
-  { at: 60, d: 0.7, name: 'Rooftop', where: 'on the Rooftop', sub: 'Jump the sweep, then hit' },
-  { at: 100, d: 0.88, name: 'Train Car', where: 'in the Train Car', sub: 'Skaters ride low. Jump them' },
-  { at: 160, d: 0.97, name: 'Temple Steps', where: 'on the Temple Steps', sub: 'Everyone at once' },
+  { at: 22, d: 0.22, name: 'Dojo', where: 'in the Dojo', sub: 'Smash crates for power-ups. Hit leapers mid-air' },
+  { at: 52, d: 0.38, name: 'Rooftop', where: 'on the Rooftop', sub: 'Jump the sweep, then hit' },
+  { at: 88, d: 0.52, name: 'Train Car', where: 'in the Train Car', sub: 'Skaters ride low. Jump them' },
+  { at: 130, d: 0.64, name: 'Temple Steps', where: 'on the Temple Steps', sub: 'Everyone at once' },
 ];
-const HARD_AT = 280;
+const HARD_AT = 700;
 const POWERS = {
   fury: { dur: 6, name: 'FURY', line: 'EVERY HIT KNOCKS OUT' },
   counter: { dur: 10, name: 'COUNTER', line: 'THE NEXT 2 HITS GET THROWN' },
-  freeze: { dur: 4.5, name: 'FREEZE', line: 'TIME STOPS FOR THEM' },
+  freeze: { dur: 3.5, name: 'FREEZE', line: 'TIME STOPS FOR THEM' },
   clone: { dur: 8, name: 'CLONE', line: 'YOUR DOUBLE GUARDS YOUR BACK' },
 };
 const POWER_LIST = ['clone', 'fury', 'freeze', 'counter'];
@@ -359,7 +341,7 @@ function diffAt(n) {
   if (b) {
     return lerp(a.d, b.d, (n - a.at) / (b.at - a.at));
   }
-  return Math.min(1, lerp(a.d, 1, (n - a.at) / (HARD_AT - a.at)));
+  return Math.min(0.9, lerp(a.d, 0.9, (n - a.at) / (HARD_AT - a.at)));
 }
 function streakMult(n) {
   return n >= 40 ? 4 : n >= 20 ? 3 : n >= 8 ? 2 : 1;
@@ -379,13 +361,13 @@ function byId(R, id) {
   return null;
 }
 
-function newRun(seed, from, notes, kids) {
+function newRun(seed, from, notes) {
   const n0 = from || 0;
   return {
     seed, rng: mulberry(seed), t: 0, gt: 0, started: false, dead: null, ev: [],
     goons: [], gid: 0, spawned: n0, nextAt: 0, lastSide: 0, run: 0, seen: {}, notes: !!notes,
     kos: n0, n0, score: 0, combo: 0, bestCombo: 0, hp: TUNE.hp, zone: zoneAt(n0),
-    busy: 0, queue: [], stop: 0, slow: 0, inv: 0, lastStrike: -9, air: -1, slamT: 0, pw: null, lastPower: '', meter: 0, full: false, face: 1, cloneCd: 0, kids: !!kids, lastCrate: -99, lastBoss: 0,
+    busy: 0, queue: [], stop: 0, slow: 0, inv: 0, lastStrike: -9, air: -1, slamT: 0, peels: [], slips: 0, bonks: 0, pw: null, lastPower: '', meter: 0, full: false, face: 1, cloneCd: 0, lastCrate: -99, lastBoss: 0,
     hits: 0, perfects: 0, goods: 0, oks: 0, closes: 0, whiffs: 0, hurts: 0, bosses: 0, clears: 0, jumps: 0, furies: 0, slams: 0, multis: 0, kinds: {},
   };
 }
@@ -400,9 +382,10 @@ function pressRun(R, side) {
   return true;
 }
 function bandOf(g, R, air) {
-  return (air ? AIR_REACH : REACH) + (g.kind === 'boss' ? 6 : 0) + (R && pw(R, 'fury') ? TUNE.furyBand : 0);
+  return (air ? AIR_REACH : REACH) + (g.kind === 'boss' ? 6 : 0) + (R && (pw(R, 'fury') || pw(R, 'freeze')) ? TUNE.furyBand : 0);
 }
-const BASE_ST = { run: 1, dash: 1, wind: 1, land: 1, back: 1, stagger: 1, feint: 1 };
+const SLIPS = { grunt: 1, runner: 1, feint: 1, armour: 1, thrower: 1, staff: 1 };
+const BASE_ST = { slip: 1, run: 1, dash: 1, wind: 1, land: 1, back: 1, stagger: 1, feint: 1 };
 function strikeable(g, air) {
   if (g.kind === 'bottle') {
     return g.st === 'fly';
@@ -413,7 +396,7 @@ function strikeable(g, air) {
   if (isLow(g)) {
     return !!air && !g.passed && g.d > 0;
   }
-  if (g.kind === 'sweeper') {
+  if (g.kind === 'sweeper' && !g.tame) {
     return g.st === 'open' || (!!air && (g.st === 'run' || g.st === 'swind' || g.st === 'back'));
   }
   if (g.kind === 'leaper' && g.st === 'leap') {
@@ -422,7 +405,7 @@ function strikeable(g, air) {
   return !!BASE_ST[g.st];
 }
 function guarded(g) {
-  return g.kind === 'sweeper' && (g.st === 'run' || g.st === 'swind' || g.st === 'back');
+  return g.kind === 'sweeper' && !g.tame && (g.st === 'run' || g.st === 'swind' || g.st === 'back');
 }
 function targetOn(R, side, air) {
   let best = null, guard = null;
@@ -462,11 +445,11 @@ function gradeOf(g, R, air) {
     return 'close';
   }
   let q;
-  if (g.st === 'land') {
+  if (g.st === 'land' || g.st === 'slip') {
     q = 'perfect';
   } else if (g.kind === 'crate') {
     q = g.st === 'toss' || g.st === 'chute' || g.t < 0.7 ? 'perfect' : 'good';
-  } else if (g.kind === 'sweeper') {
+  } else if (g.kind === 'sweeper' && !g.tame) {
     q = g.st === 'open' ? (g.t < 0.5 ? 'perfect' : 'good') : 'good';
   } else if (isLow(g)) {
     q = g.d < 84 ? 'perfect' : 'good';
@@ -522,6 +505,10 @@ function checkZone(R) {
 function countKo(R, g, e) {
   R.kos++;
   R.kinds[g.kind] = (R.kinds[g.kind] || 0) + 1;
+  if ((R.kos - R.n0) % 16 === 0 && R.hp < TUNE.hp) {
+    R.hp++;
+    R.ev.push({ k: 'heal' });
+  }
   if ((R.kos - R.n0) % 10 === 0) {
     e.cine = true;
     R.slow = TUNE.slowT;
@@ -616,6 +603,10 @@ function strike(R, side) {
       R.bosses++;
     }
     countKo(R, g, e);
+  }
+  if (e.ko && g.st === 'slip') {
+    e.pts += 2 * mult;
+    e.slip = true;
   }
   if (R.pw && !e.smash) {
     e.pts += mult;
@@ -721,8 +712,8 @@ function slamImpact(R) {
     }
   }
   R.score += pts;
-  R.slow = 0.8;
-  R.stop = 0.14;
+  R.slow = 0.5;
+  R.stop = 0.1;
   R.inv = Math.max(R.inv, 0.6);
   R.nextAt = Math.max(R.nextAt, R.gt + 0.9);
   R.ev.push({ k: 'slam', gs, pts, combo: R.combo, mult: streakMult(R.combo) });
@@ -782,6 +773,46 @@ function jump(R) {
   R.air = 0;
   R.jumps++;
   R.ev.push({ k: 'jump' });
+  const near = (s) => {
+    let best = null;
+    for (const g of R.goons) {
+      if (g.side === s && g.d > 0 && g.d <= 80 && (g.st === 'wind' || g.st === 'run' || g.st === 'land') && SLIPS[g.kind] && (!best || g.d < best.d)) {
+        best = g;
+      }
+    }
+    return best;
+  };
+  const a = near(-1), b = near(1);
+  if (a && b) {
+    for (const [g, o] of [[a, b], [b, a]]) {
+      g.st = 'lunge';
+      g.t = 0;
+      g.from = g.d;
+      g.partner = o.id;
+    }
+    R.ev.push({ k: 'lunge', a, b });
+  }
+}
+function headBonk(R, g) {
+  const o = byId(R, g.partner);
+  removeGoon(R, g);
+  const e = { k: 'headbonk', a: g, b: o, pts: 0, combo: 0, mult: 1 };
+  for (const x of o ? [g, o] : [g]) {
+    if (x !== g) {
+      removeGoon(R, x);
+    }
+    const { mult } = credit(R, 'perfect', false);
+    e.pts += 5 * mult;
+    e.mult = mult;
+    countKo(R, x, e);
+  }
+  e.combo = R.combo;
+  R.bonks++;
+  R.score += e.pts;
+  R.stop = TUNE.hsP;
+  R.ev.push(e);
+  flushTier(R);
+  checkZone(R);
 }
 function counterThrow(R, g) {
   removeGoon(R, g);
@@ -842,14 +873,16 @@ function hurt(R, g) {
     if (g.kind === 'leaper') {
       g.stop = 58;
     }
+    if (g.kind === 'sweeper') {
+      g.stop = 58;
+      g.tame = true;
+    }
   }
   if (R.inv > 0) {
     R.ev.push({ k: 'blocked', g });
     return;
   }
-  if (!R.kids) {
-    R.hp--;
-  }
+  R.hp--;
   R.hurts++;
   const had = R.combo;
   R.combo = 0;
@@ -859,8 +892,8 @@ function hurt(R, g) {
   R.queue.length = 0;
   const fromAir = R.air >= 0;
   R.air = -1;
-  R.ev.push({ k: 'hurt', g, side: g.side, hp: R.hp, combo: had, kind: g.kind, fromAir, kids: R.kids });
-  if (R.hp <= 0 && !R.kids) {
+  R.ev.push({ k: 'hurt', g, side: g.side, hp: R.hp, combo: had, kind: g.kind, fromAir });
+  if (R.hp <= 0) {
     R.dead = { cause: g.kind === 'bottle' ? 'bottle' : g.kind, t: R.t, side: g.side, gid: g.id };
     R.ev.push({ k: 'die', cause: R.dead.cause, side: g.side, g });
   }
@@ -872,7 +905,8 @@ function pickKind(R, n, d) {
   const busyLow = R.goons.some((g) => isLow(g) && !g.passed);
   const alive = (k) => R.goons.some((g) => g.kind === k && g.st !== 'doomed');
   const ok = {
-    crate: !R.pw && !alive('crate') && n - R.lastCrate > 16,
+    crate: !R.pw && !alive('crate') && n - R.lastCrate > 13,
+    peel: !R.peels.length,
     barrel: !busyLow,
     skater: !busyLow,
     thrower: !R.goons.some((g) => g.kind === 'thrower' && !g.thrown && g.st !== 'doomed'),
@@ -917,7 +951,20 @@ function addGoon(R, kind, side, d, speed, wind) {
   R.goons.push(g);
   return g;
 }
+function crowd(R) {
+  let c = 0;
+  for (const g of R.goons) {
+    if (g.d > 0 && !KINDS[g.kind].prop && !(isLow(g) && g.passed) && g.st !== 'doomed') {
+      c++;
+    }
+  }
+  return c;
+}
 function spawn(R) {
+  if (crowd(R) >= TUNE.cap) {
+    R.nextAt = R.gt + 0.25;
+    return;
+  }
   const n = R.spawned;
   const d = diffAt(R.kos);
   const early = n - R.n0 < 5 && R.n0 === 0;
@@ -935,20 +982,27 @@ function spawn(R) {
   R.run = side === R.lastSide ? R.run + 1 : 1;
   R.lastSide = side;
   const speed = early ? 185 : lerp(245, 380, d);
-  const wind = early ? 0.42 : lerp(0.2, 0.12, d);
+  const wind = early ? 0.42 : lerp(0.3, 0.18, d);
   const x0 = n === 0 && R.n0 === 0 ? 300 : SPAWN;
   const gs = [];
-  if (kind === 'pair') {
+  if (kind === 'pair' && crowd(R) < TUNE.cap - 1) {
     gs.push(addGoon(R, 'grunt', side, x0, speed, wind));
     gs.push(addGoon(R, R.rng() < d * 0.5 ? 'runner' : 'grunt', -side, x0 + 40, speed, wind));
     R.spawned += 2;
+  } else if (kind === 'peel') {
+    R.peels.push({ side, d: lerp(92, 112, R.rng()), t: 0, id: ++R.gid });
+    R.spawned++;
+    R.ev.push({ k: 'peel', p: R.peels[R.peels.length - 1] });
+    R.nextAt = R.gt + 0.4;
+    return;
   } else if (kind === 'crate') {
     const chute = R.seen.crate && R.rng() < 0.7;
     const g = addGoon(R, 'crate', side, chute ? lerp(78, 108, R.rng()) : CRATE_FROM, 0, 0);
     g.st = chute ? 'chute' : 'toss';
     g.d0 = g.d;
     const opts = POWER_LIST.filter((p) => p !== R.lastPower);
-    g.power = R.seen.crate ? opts[Math.floor(R.rng() * opts.length)] : 'clone';
+    R.powerN = (R.powerN || 0) + 1;
+    g.power = R.powerN <= POWER_LIST.length ? POWER_LIST[R.powerN - 1] : opts[Math.floor(R.rng() * opts.length)];
     if (R.forcePower) {
       g.power = R.forcePower;
       R.forcePower = null;
@@ -960,7 +1014,7 @@ function spawn(R) {
     gs.push(addGoon(R, 'skater', side, SPAWN + 80, lerp(400, 540, d), wind));
     R.spawned++;
   } else {
-    gs.push(addGoon(R, kind, side, x0, speed, wind));
+    gs.push(addGoon(R, kind === 'pair' ? 'grunt' : kind, side, x0, speed, wind));
     R.spawned++;
     if (kind === 'boss') {
       R.lastBoss = n;
@@ -976,7 +1030,7 @@ function spawn(R) {
       }
     }
   }
-  let gap = early ? (n === 0 ? 0.05 : 0.95) : lerp(1.0, 0.15, Math.pow(d, 0.8)) * (0.8 + 0.4 * R.rng());
+  let gap = early ? (n === 0 ? 0.05 : 0.95) : lerp(1.05, 0.22, Math.pow(d, 0.8)) * (0.8 + 0.4 * R.rng());
   if (kind === 'pair') {
     gap *= 1.5;
   }
@@ -1081,6 +1135,17 @@ function moveGoons(R, k) {
         const step = g.v * k;
         g.d -= step;
         g.trav += step;
+        const peel = SLIPS[g.kind] && g.feinted ? R.peels.find((p) => p.side === g.side && p.t > 0.45 && g.d <= p.d && g.d + step > p.d) : null;
+        if (peel) {
+          R.peels.splice(R.peels.indexOf(peel), 1);
+          g.st = 'slip';
+          g.t = 0;
+          g.d = peel.d;
+          g.bErr = null;
+          R.slips++;
+          R.ev.push({ k: 'slip', g });
+          continue;
+        }
         if (!g.feinted && g.d <= REACH + TUNE.feintD) {
           g.feinted = true;
           g.st = 'feint';
@@ -1099,12 +1164,27 @@ function moveGoons(R, k) {
           } else if (g.kind === 'leaper' && !g.leapt) {
             g.st = 'crouch';
             R.ev.push({ k: 'crouch', g });
-          } else if (g.kind === 'sweeper') {
+          } else if (g.kind === 'sweeper' && !g.tame) {
             g.st = 'swind';
             R.ev.push({ k: 'swind', g });
           } else {
             g.st = 'wind';
             R.ev.push({ k: 'wind', g });
+          }
+        }
+      } else if (g.st === 'slip') {
+        if (g.t >= TUNE.slipT) {
+          g.st = 'run';
+          g.t = 0;
+          g.bErr = null;
+        }
+      } else if (g.st === 'lunge') {
+        const u = Math.min(1, g.t / TUNE.lungeT);
+        g.d = lerp(g.from, 8, u);
+        if (u >= 1) {
+          headBonk(R, g);
+          if (R.dead) {
+            return;
           }
         }
       } else if (g.st === 'feint') {
@@ -1270,6 +1350,12 @@ function tickRun(R, dt) {
       cloneTick(R);
     }
   }
+  for (let i = R.peels.length - 1; i >= 0; i--) {
+    R.peels[i].t += k;
+    if (R.peels[i].t > 14) {
+      R.peels.splice(i, 1);
+    }
+  }
   if (R.gt >= R.nextAt) {
     spawn(R);
   }
@@ -1361,7 +1447,7 @@ function botTick(B, R) {
       }
     } else if (g.kind === 'crate') {
       tTo = g.st === 'rest' ? 0.12 - g.t : g.st === 'toss' && g.d < band ? 0 : g.st === 'chute' ? TUNE.chuteT * 0.72 - g.t : Infinity;
-    } else if (g.kind === 'sweeper') {
+    } else if (g.kind === 'sweeper' && !g.tame) {
       if (g.st === 'open') {
         tTo = 0.1 - g.t;
       } else if (air && g.d < band) {
@@ -1372,6 +1458,8 @@ function botTick(B, R) {
         }
         tTo = g.bFool ? 0 : Infinity;
       }
+    } else if (g.st === 'slip') {
+      tTo = g.d <= band ? 0.15 - g.t : Infinity;
     } else if (g.st === 'leap') {
       tTo = (g.d - dStar(30)) / ((g.from - 26) / TUNE.leapT);
     } else if (g.st === 'run' || g.st === 'dash') {
@@ -1444,27 +1532,9 @@ const store = {
   },
 };
 const LIFE0 = { best: 0, bestKos: 0, games: 0, kos: 0, bestCombo: 0, perfects: 0, bosses: 0, seenHint: false };
-const lives = {
-  normal: Object.assign({}, LIFE0, DEBUG ? {} : store.get('life', {})),
-  kids: Object.assign({}, LIFE0, DEBUG ? {} : store.get('lifeKids', {})),
-};
-let playMode = Q.has('kids') ? 'kids' : DEBUG ? 'normal' : store.get('mode', 'normal') === 'kids' ? 'kids' : 'normal';
-let life = lives[playMode];
+const life = Object.assign({}, LIFE0, DEBUG ? {} : store.get('life', {}));
 function saveLife() {
-  store.set(playMode === 'kids' ? 'lifeKids' : 'life', life);
-}
-function setMode(m) {
-  playMode = m;
-  life = lives[m];
-  store.set('mode', m);
-  document.body.classList.toggle('kids', m === 'kids');
-  for (const b of document.querySelectorAll('.mode')) {
-    b.classList.toggle('on', b.dataset.mode === m);
-  }
-  $('best').textContent = life.best;
-  if (run && !run.started) {
-    run.kids = m === 'kids';
-  }
+  store.set('life', life);
 }
 if (DEBUG && Q.has('best')) {
   life.bestKos = parseInt(Q.get('best'), 10);
@@ -1756,6 +1826,19 @@ const SND = {
     partial(70, 40, 0.7, 0.5, 'sine', 0.3);
     hiss(0.6, 0.14, 'bandpass', 300, 3000, 1, 0.4, 0.05);
   },
+  meow() {
+    partial(700, 1100, 0.12, 0.04, 'triangle', 0.3);
+    partial(1100, 600, 0.22, 0.04, 'triangle', 0.3, 0.12);
+  },
+  slip() {
+    partial(900, 220, 0.35, 0.06, 'sine', 0.3);
+    SND.thud(0.8);
+  },
+  bonk() {
+    partial(520, 300, 0.18, 0.2, 'triangle', 0.3);
+    partial(260, 120, 0.25, 0.3, 'sine', 0.2);
+    partial(1560, 1560, 0.3, 0.03, 'sine', 0.5, 0.05);
+  },
   counter() {
     hiss(0.3, 0.2, 'bandpass', 500, 2400, 1.3, 0.2, 0.04);
     partial(240, 120, 0.2, 0.3, 'triangle', 0.15);
@@ -1929,6 +2012,8 @@ G.sweep = mk({ head: [22, -72], chest: [14, -52], hip: [0, -30], fF: [32, -8], k
 G.skate = mk({ head: [24, -78], chest: [12, -60], hip: [-2, -40], fF: [16, -18], kF: [22, -36], fB: [-14, -18], kB: [8, -34], hF: [-24, -50], eF: [-8, -46], hB: [-28, -56], eB: [-12, -52] });
 G.throwA = mk({ head: [-10, -114], chest: [-7, -90], hip: [-2, -60], fF: [20, -8], kF: [18, -35], fB: [-20, -8], kB: [-13, -34], hF: [16, -96], eF: [10, -78], hB: [-34, -116], eB: [-30, -96] });
 G.throwB = mk({ head: [20, -110], chest: [14, -87], hip: [4, -58], fF: [32, -8], kF: [30, -35], fB: [-18, -8], kB: [-6, -32], hF: [-6, -74], eF: [-10, -84], hB: [52, -104], eB: [32, -104] });
+G.slip = mk({ head: [-40, -44], chest: [-22, -38], hip: [0, -26], fF: [30, -62], kF: [16, -50], fB: [26, -48], kB: [12, -42], hF: [-6, -72], eF: [-14, -56], hB: [-40, -68], eB: [-34, -52] });
+G.sit = mk({ head: [-6, -64], chest: [-4, -42], hip: [0, -14], fF: [30, -8], kF: [16, -28], fB: [26, -6], kB: [12, -24], hF: [14, -30], eF: [8, -36], hB: [-18, -22], eB: [-14, -32] });
 const RUNCYCLE = [G.runA, G.runP2, G.runB, G.runP1, G.runA];
 
 const PTS = ['head', 'chest', 'hip', 'fF', 'fB', 'kF', 'kB', 'hF', 'hB', 'eF', 'eB'];
@@ -2047,7 +2132,7 @@ function newRound() {
   const seed = DEBUG ? (parseInt(Q.get('seed') || '7', 10) + runsMade * 101) : Math.floor(Math.random() * 2147483647);
   runsMade++;
   const notes = DEBUG ? !Q.has('nonotes') : life.games < 5;
-  run = newRun(seed, DEBUG ? parseInt(Q.get('start') || '0', 10) : 0, notes, playMode === 'kids');
+  run = newRun(seed, DEBUG ? parseInt(Q.get('start') || '0', 10) : 0, notes);
   bot = Q.get('bot') ? makeBot(Q.get('bot'), seed + 5) : null;
   rags.length = 0;
   bits.length = 0;
@@ -2067,6 +2152,8 @@ function newRound() {
   fig.jy = 0;
   fig.smear = null;
   fig.scale = 1;
+  cat = null;
+  nextCat = real + 25;
   fig.slam = null;
   fig.dazeT = undefined;
   screenFlash = 0;
@@ -2105,7 +2192,6 @@ function startGame() {
     newRound();
   }
   mode = 'play';
-  document.body.classList.add('playing');
   $('overlay').classList.remove('menu');
   me.clear();
   me.push({ pose: P.bow, d: 0.16, ez: 'out' }, { d: 0.08 }, { pose: P.guard, d: 0.22, ez: 'soft' });
@@ -2403,11 +2489,11 @@ function onEvent(e) {
       popup(WORD[move] || 'WHAP!', `${R.kos - R.n0} KNOCKOUTS`, true, false, cx, -190, 1.8);
       burst(cx, cy, 26, true);
     } else {
-      if (!perfect && !BIG[move] && !e.close) {
+      if (!perfect && !BIG[move] && !e.close && !e.slip) {
         popup(subs.join('  '), '', false, true, cx, Math.min(cy, -90) - 50);
       } else {
         const big = 1.15 + Math.min(0.25, e.combo * 0.01) + (BIG[move] ? 0.15 : 0);
-        const word = WORD[move] || 'WHAP!';
+        const word = e.slip ? 'OOPS!' : WORD[move] || 'WHAP!';
         popup(word, subs.join('  '), true, false, cx, Math.min(cy, -90) - 64, word.length > 6 ? big * 0.85 : big);
       }
     }
@@ -2552,6 +2638,12 @@ function onEvent(e) {
     buzz([8, 30, 12]);
     return;
   }
+  if (e.k === 'heal') {
+    SND.heal();
+    popup('+1 heart', 'EVERY 16 KOs', true, true, fig.x - 40, -175);
+    updateHud();
+    return;
+  }
   if (e.k === 'zone') {
     showZone(e.z);
     burst(0, -200, 34, true);
@@ -2596,18 +2688,49 @@ function onEvent(e) {
   if (e.k === 'slamStart') {
     me.clear();
     me.pose = P.crouch;
-    me.push({ pose: P.leap, d: 0.07, ez: 'out' }, { pose: P.slamHang, d: 0.16, ez: 'out' }, { d: 0.13 }, { pose: P.slamDive, d: 0.1, ez: 'in' });
+    me.push({ pose: P.slamHang, d: 0.12, ez: 'out' }, { pose: P.slamDive, d: 0.14, ez: 'in' });
     fig.slam = { t: 0 };
     fig.lunge = null;
     fig.hopT = -1;
     SND.jump();
-    partial(300, 900, 0.4, 0.06, 'triangle', 0.4);
-    puff(fig.x, -2, 6);
     updateHud();
     return;
   }
   if (e.k === 'slam') {
     doSlam(e);
+    return;
+  }
+  if (e.k === 'peel') {
+    SND.toss();
+    return;
+  }
+  if (e.k === 'slip') {
+    SND.slip();
+    puff(wx(e.g.side * e.g.d), -2, 4);
+    popup('whoops', 'FREE HIT', false, true, wx(e.g.side * e.g.d), -120);
+    return;
+  }
+  if (e.k === 'lunge') {
+    SND.hup();
+    return;
+  }
+  if (e.k === 'headbonk') {
+    SND.bonk();
+    flash(0, -110, 14, true);
+    for (const [g, s] of [[e.a, e.a.side], [e.b, e.b && e.b.side]]) {
+      if (!g) {
+        continue;
+      }
+      const r = addRag(g, { side: s, grade: 'good', cine: false }, wx(s * 10), 0.7);
+      r.vx = s * 160;
+      r.vy = -260;
+    }
+    popup('BONK!', `HEAD TO HEAD · +${e.pts}`, true, false, 0, -200, 1.2);
+    shake = Math.max(shake, 0.6);
+    buzz([10, 20, 10]);
+    checkPassed();
+    updateHud();
+    bumpScore();
     return;
   }
   if (e.k === 'counter') {
@@ -2714,14 +2837,6 @@ function onEvent(e) {
     me.pose = P.hurt;
     fig.lunge = null;
     fig.kb = -e.side * 18;
-    if (e.kids) {
-      me.push({ d: 0.12 }, { pose: P.stumble2, d: 0.12, ez: 'soft' }, { pose: P.guard, d: 0.22, ez: 'soft' });
-      popup(HURTWORD[e.kind] || 'BONK!', e.combo >= 3 ? `COMBO RESET · ${e.combo}` : 'NO HARM DONE', false, false, -e.side * 30, -170, 1.2);
-      fig.dazeT = clock;
-      SND.boing();
-      updateHud();
-      return;
-    }
     if (e.hp > 0) {
       me.push({ d: 0.12 }, { pose: P.guard, d: 0.26, ez: 'soft' });
       popup(HURTWORD[e.kind] || 'OOF!', e.combo >= 3 ? `COMBO LOST · ${e.combo}` : `${e.hp} ${e.hp === 1 ? 'HEART' : 'HEARTS'} LEFT`, false, false, -e.side * 30, -170, 1.25);
@@ -2802,15 +2917,12 @@ function doSlam(e) {
   fig.hopT = -1;
   fig.lunge = null;
   slamFx = { t: 0, x: fig.x };
-  screenFlash = 0.45;
-  shake = Math.max(shake, 2.2);
-  cam.kick = Math.max(cam.kick, 0.1);
-  cam.pv = 8;
+  shake = Math.max(shake, 1.2);
+  cam.pv = 6;
   SND.slam();
-  buzz([40, 30, 60, 30, 40]);
-  flash(fig.x + fig.sx * 18, -6, 26, true);
-  puff(fig.x - 26, -2, 6, -1);
-  puff(fig.x + 26, -2, 6, 1);
+  buzz([30, 30, 40]);
+  puff(fig.x - 20, -2, 4, -1);
+  puff(fig.x + 20, -2, 4, 1);
   let n = 0;
   for (const s of e.gs) {
     const x = wx(s.side * s.d);
@@ -2825,7 +2937,7 @@ function doSlam(e) {
     n++;
     addRag(s.g, { side: s.side, grade: 'perfect', cine: true }, x + s.side * 10, 1.3 + Math.random() * 0.25);
   }
-  popup('SHOCKWAVE!', n ? `${n} KNOCKED OUT · +${e.pts}` : 'NOTHING STANDING', true, false, 0, -250, 1.9);
+  popup(`SLAM ×${n}`, '', true, false, 0, -200, 1.1);
   checkPassed();
   updateHud();
   bumpScore();
@@ -2880,7 +2992,7 @@ function endGame() {
     perfPct: R.hits ? Math.round((100 * R.perfects) / R.hits) : 0,
     isBest: kos > 0 && kos > life.bestKos, isBestScore: R.score > life.best, time: R.t,
   };
-  res.where = R.kids ? `Kids mode · made it to ${ZONES[res.zone].name}` : `${cause === 'barrel' ? 'Bowled over' : cause === 'skater' ? 'Run over' : cause === 'sweeper' ? 'Swept' : 'Floored'} by ${CAUSE[cause] || 'a goon'} ${ZONES[res.zone].where}`;
+  res.where = `${cause === 'barrel' ? 'Bowled over' : cause === 'skater' ? 'Run over' : cause === 'sweeper' ? 'Swept' : 'Floored'} by ${CAUSE[cause] || 'a goon'} ${ZONES[res.zone].where}`;
   life.best = Math.max(life.best, R.score);
   life.bestKos = Math.max(life.bestKos, kos);
   life.bestCombo = Math.max(life.bestCombo, R.bestCombo);
@@ -2904,7 +3016,6 @@ function endGame() {
   $('streak').classList.remove('on');
   $('zone').classList.remove('on');
   $('slamBtn').classList.remove('on');
-  document.body.classList.remove('playing');
 }
 
 function lifetimeLine() {
@@ -2979,10 +3090,6 @@ addEventListener('keydown', (e) => {
     strikeInput(KEYS[e.code]);
     return;
   }
-  if (e.code === 'Escape' && mode === 'play' && run && run.kids) {
-    endGame();
-    return;
-  }
   if (e.code === 'Space' || e.code === 'Enter') {
     e.preventDefault();
     if (e.repeat) {
@@ -3033,12 +3140,6 @@ cv.addEventListener('pointermove', (e) => {
     clearTimeout(p.timer);
   }
   strikeInput(dy > 0 ? 0 : 2);
-});
-$('endBtn').addEventListener('click', (e) => {
-  e.stopPropagation();
-  if (mode === 'play' && run && run.kids) {
-    endGame();
-  }
 });
 $('slamBtn').addEventListener('pointerdown', (e) => {
   e.preventDefault();
@@ -4105,6 +4206,17 @@ function goonDraw(g) {
     pose = g.t < 0.25 ? lerpPose(G.throwB, G.ready, g.t / 0.25) : G.ready;
   } else if (g.st === 'doomed') {
     pose = lerpPose(G.ready, G.hit, Math.min(1, g.t / 0.1));
+  } else if (g.st === 'slip') {
+    if (g.t < 0.22) {
+      pose = lerpPose(G.hop, G.slip, g.t / 0.22);
+      y = -Math.sin((g.t / 0.22) * Math.PI) * 18;
+    } else if (g.t < TUNE.slipT - 0.25) {
+      pose = lerpPose(G.slip, G.sit, Math.min(1, (g.t - 0.22) / 0.16));
+    } else {
+      pose = lerpPose(G.sit, G.ready, (g.t - (TUNE.slipT - 0.25)) / 0.25);
+    }
+  } else if (g.st === 'lunge') {
+    pose = leanPose(G.punch, 14);
   } else if (g.st === 'crouch') {
     pose = lerpPose(G.ready, G.crouch, Math.min(1, g.t / 0.12));
   } else if (g.st === 'leap') {
@@ -4178,6 +4290,9 @@ function goonDraw(g) {
   ctx.restore();
   if (g.st === 'open' && !run.dead) {
     drawDazed([x, y - 120], clock);
+  }
+  if (g.st === 'slip' && g.t > 0.3 && g.t < TUNE.slipT - 0.2 && !run.dead) {
+    drawDazed([x - g.side * 4, -70], clock);
   }
   if (bang && !run.dead) {
     if (g.st === 'swind') {
@@ -4512,35 +4627,112 @@ function drawFreezeFrame() {
   }
   ctx.restore();
 }
+function drawPeel(p) {
+  const x = wx(p.side * p.d);
+  const u = Math.min(1, p.t / 0.45);
+  const y = -150 * (1 - u) * (1 - u);
+  ctx.save();
+  ctx.translate(x, y - 4);
+  ctx.rotate((1 - u) * 6 * p.side);
+  ctx.scale(1.35, 1.35);
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-2, 0);
+  ctx.quadraticCurveTo(-9, -1, -13, 3);
+  ctx.quadraticCurveTo(-7, 2, -2, 3);
+  ctx.quadraticCurveTo(0, 6, 3, 3);
+  ctx.quadraticCurveTo(8, 2, 13, 3);
+  ctx.quadraticCurveTo(9, -1, 2, 0);
+  ctx.quadraticCurveTo(1, -7, 0, -8);
+  ctx.quadraticCurveTo(-1, -7, -2, 0);
+  ctx.closePath();
+  inkShape(COL.butterHi, 1.3);
+  ctx.restore();
+}
+let cat = null, nextCat = 25;
+function stepCat(dt) {
+  if (mode !== 'play' || !run || run.dead) {
+    return;
+  }
+  if (!cat) {
+    if (real > nextCat) {
+      const s = Math.random() < 0.5 ? -1 : 1;
+      cat = { x: s * (cam.halfW + 30), dir: -s, t: 0, spd: 34, scared: false };
+    }
+    return;
+  }
+  cat.t += dt;
+  if (!cat.scared && Math.abs(cat.x - fig.x) < 90 && shake > 0.9) {
+    cat.scared = true;
+    cat.spd = 170;
+    cat.hop = 0;
+    SND.meow();
+  }
+  if (cat.hop !== undefined) {
+    cat.hop += dt;
+  }
+  cat.x += cat.dir * cat.spd * dt;
+  if (Math.abs(cat.x) > cam.halfW + 60) {
+    cat = null;
+    nextCat = real + 45 + Math.random() * 30;
+  }
+}
+function drawCat() {
+  if (!cat) {
+    return;
+  }
+  const d = cat.dir;
+  const hy = cat.hop !== undefined && cat.hop < 0.3 ? -Math.sin((cat.hop / 0.3) * Math.PI) * 16 : 0;
+  const st = Math.sin(cat.t * (cat.scared ? 26 : 9));
+  ctx.save();
+  ctx.translate(cat.x, hy);
+  ctx.strokeStyle = '#7a7a7a';
+  ctx.fillStyle = PAL.white;
+  ctx.lineWidth = 1.5;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  for (const [lx, ph] of [[-7, 1], [-4, -1], [5, -1], [8, 1]]) {
+    line(d * lx, -6, d * (lx + st * ph * 2.5), -0.5);
+  }
+  ctx.beginPath();
+  ctx.moveTo(-d * 9, -9);
+  ctx.quadraticCurveTo(-d * 20, -12 - st, -d * 17, cat.scared ? -24 : -22 + st * 2);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(0, -9, 11, 5.5, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(d * 11, -14, 4.8, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(d * 8, -17);
+  ctx.lineTo(d * 8.5, -22);
+  ctx.lineTo(d * 11, -18.5);
+  ctx.moveTo(d * 12, -18.6);
+  ctx.lineTo(d * 14.5, -22);
+  ctx.lineTo(d * 15, -16.5);
+  ctx.stroke();
+  ctx.fillStyle = '#7a7a7a';
+  ctx.beginPath();
+  ctx.arc(d * 13, -14.5, 0.9, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
 function drawSlamFx() {
-  if (!slamFx || slamFx.t > 1) {
+  if (!slamFx || slamFx.t > 0.8) {
     return;
   }
   const t = slamFx.t;
-  const R = 30 + EASE.out(Math.min(1, t / 0.7)) * 760;
+  const R = 24 + EASE.out(t / 0.8) * 720;
   ctx.save();
-  ctx.lineCap = 'round';
-  ctx.globalAlpha = Math.max(0, 1 - t / 0.95);
-  ctx.strokeStyle = COL.accent;
-  ctx.lineWidth = 5 * (1 - t) + 1.5;
-  ctx.beginPath();
-  ctx.ellipse(slamFx.x, 0, R, Math.max(4, R * 0.08), 0, 0, Math.PI * 2);
-  ctx.stroke();
+  ctx.globalAlpha = 1 - t / 0.8;
   ctx.strokeStyle = COL.ink;
-  ctx.lineWidth = 1.4;
+  ctx.lineWidth = 1.6;
   ctx.beginPath();
-  ctx.ellipse(slamFx.x, 0, R * 0.72, Math.max(3, R * 0.055), 0, 0, Math.PI * 2);
+  ctx.ellipse(slamFx.x, 0, R, Math.max(3, R * 0.05), 0, 0, Math.PI * 2);
   ctx.stroke();
-  ctx.globalAlpha = Math.max(0, 1 - t / 0.8);
-  ctx.lineWidth = 1.8;
-  for (const s of [-1, 1]) {
-    ctx.beginPath();
-    ctx.moveTo(slamFx.x + s * 8, 1);
-    ctx.lineTo(slamFx.x + s * 26, 3);
-    ctx.lineTo(slamFx.x + s * 38, 1);
-    ctx.lineTo(slamFx.x + s * 58, 4);
-    ctx.stroke();
-  }
   ctx.restore();
 }
 function drawSmear(J) {
@@ -4751,6 +4943,10 @@ function render() {
   drawSign();
   drawGround(xl, xr, yb);
   drawStains();
+  drawCat();
+  for (const p of run.peels) {
+    drawPeel(p);
+  }
   for (const r of rags) {
     if (r.ground) {
       drawRag(r);
@@ -5026,16 +5222,12 @@ function update(dt) {
   if (fig.slam && alive) {
     fig.slam.t += vdt;
     const t = fig.slam.t;
-    const top = -110;
-    let sy = 0;
-    if (t < 0.06) {
-      sy = 0;
-    } else if (t < 0.25) {
-      sy = top * EASE.out((t - 0.06) / 0.19);
-    } else if (t < 0.39) {
-      sy = top - 6 * Math.sin(((t - 0.25) / 0.14) * Math.PI);
+    const top = -46;
+    let sy;
+    if (t < 0.13) {
+      sy = top * EASE.out(t / 0.13);
     } else {
-      sy = top * (1 - EASE.in(Math.min(1, (t - 0.39) / 0.11)));
+      sy = top * (1 - EASE.in(Math.min(1, (t - 0.13) / 0.15)));
     }
     fig.y = sy;
   }
@@ -5177,6 +5369,7 @@ function update(dt) {
       popups.splice(i, 1);
     }
   }
+  stepCat(dt);
   shake = Math.max(0, shake - dt * 3.4);
   screenFlash = Math.max(0, screenFlash - dt * 5);
   if (pickupFx) {
@@ -5379,13 +5572,6 @@ function runSim(n, kinds, maxT) {
   return out;
 }
 
-for (const b of document.querySelectorAll('.mode')) {
-  b.addEventListener('click', (e) => {
-    e.stopPropagation();
-    setMode(b.dataset.mode);
-  });
-}
-setMode(playMode);
 $('best').textContent = life.best;
 resize();
 

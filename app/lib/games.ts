@@ -52,7 +52,7 @@ const allGames: Game[] = [
     name: 'Keep Punching',
     tagline: 'Goons from both sides, tap a side to strike',
     description:
-      "Goons come from both sides. Tap a side to strike, jump the sweeps and barrels, punch bottles back, and fire a shockwave when the crowd piles up. Flying kicks, clones, counters, and a kids mode where you can't lose.",
+      'Goons come from both sides. Tap a side to strike, jump the sweeps and barrels, punch bottles back, and slam the floor when the crowd piles up. Flying kicks, clones, counters and banana peels.',
     addedAt: '2026-11-14',
     controls: 'tap',
   },
