@@ -11,19 +11,21 @@ This skill takes someone from an idea to an open pull request. Work through the 
 
 ## 1. Get the repo
 
-Check whether the current folder is the goofyfish repo: it has `app/lib/games.ts` and `public/games/`. If it is, run `pnpm install` if `node_modules` is missing and move on.
+Check the tools first: `git --version`, `node --version` (20 or newer) and `pnpm --version`. If one is missing, tell the person what to install (pnpm: `npm i -g pnpm`) and stop until it's there. The GitHub CLI is only needed at the end, to submit.
 
-If it isn't:
+Check whether the current folder is the goofyfish repo: it has `app/lib/games.ts` and `public/games/`. If it is, run `pnpm install` if `node_modules` is missing.
 
-1. Check the tools: `node --version` (20 or newer), `pnpm --version`, `gh auth status`. If something is missing, tell the person what to install (`npm i -g pnpm`, `brew install gh` then `gh auth login`) and stop until it's there.
-2. Fork and clone into a new `goofyfish` folder inside the current one:
-   ```bash
-   gh repo fork nilbuild/goofyfish --clone --default-branch-only
-   cd goofyfish
-   pnpm install
-   pnpm exec playwright install chromium
-   ```
-   If a `goofyfish` folder already exists, use it: `cd goofyfish && git checkout main && git pull upstream main && pnpm install`.
+If it isn't, clone it into a new `goofyfish` folder inside the current one:
+
+```bash
+git clone https://github.com/nilbuild/goofyfish
+cd goofyfish
+pnpm install
+```
+
+If a `goofyfish` folder already exists, use it: `cd goofyfish && git checkout main && git pull && pnpm install`.
+
+Either way, run `pnpm exec playwright install chromium` once so `pnpm game:check` can drive a browser.
 
 Do all later work inside that folder.
 
@@ -116,13 +118,23 @@ Run `pnpm typecheck` and `pnpm build`, then open `http://localhost:5173/<slug>` 
 
 ## 7. Open the pull request
 
-Show the person a short summary (name, how to play, the thumbnail, the check results) and ask if they're ready to submit. Then:
+Show the person a short summary (name, how to play, the thumbnail, the check results) and ask if they're ready to submit.
+
+Submitting needs the GitHub CLI. Check `gh auth status`; if it's missing, ask them to install it (`brew install gh`, or see https://cli.github.com) and run `gh auth login`, then continue.
+
+Make sure there's a fork to push to. Run `git remote -v`: if `origin` still points at `nilbuild/goofyfish`, create the fork and rewire the remotes (the fork becomes `origin`, the main repo becomes `upstream`):
+
+```bash
+gh repo fork --remote
+```
+
+Then commit, push to the fork and open the pull request against the main repo:
 
 ```bash
 git add public/games/<slug>.html public/og/<slug>.jpg public/thumbs/<slug>.webp app/lib/games.ts
 git commit -m "Add <Game Name>"
 git push -u origin game/<slug>
-gh pr create --repo nilbuild/goofyfish --base main --title "Add <Game Name>" --body-file <file>
+gh pr create --repo nilbuild/goofyfish --base main --head <their-github-username>:game/<slug> --title "Add <Game Name>" --body-file <file>
 ```
 
 Write the body to a temp file first:

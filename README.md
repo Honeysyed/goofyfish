@@ -20,15 +20,17 @@ pnpm preview   # serve build/client on :4173
 
 ## Adding a game
 
-Get the goofyfish skill for [Claude Code](https://claude.com/claude-code) (or download `skill.zip` from [goofyfish.com/make](https://goofyfish.com/make)):
+Clone the repo and ask [Claude Code](https://claude.com/claude-code) for a game:
 
 ```
-mkdir -p ~/.claude/skills && curl -fsSL https://goofyfish.com/skill.tar.gz | tar -xz -C ~/.claude/skills
+git clone https://github.com/nilbuild/goofyfish
+cd goofyfish && pnpm install
+claude "make a goofyfish game where you keep a balloon in the air"
 ```
 
-Then, from any folder, ask for a game (`claude "make a goofyfish game where you keep a balloon in the air"`). The `make-goofyfish-game` skill forks and clones this repo, pitches ideas, builds the game from its starter template in the house style, checks it at phone and laptop sizes, makes the social image and the card thumbnail, registers it and opens a pull request. The same steps are on [goofyfish.com/make](https://goofyfish.com/make).
+The `make-goofyfish-game` skill in `.claude/skills/` pitches ideas, builds the game from its starter template in the house style, checks it at phone and laptop sizes, makes the social image and the card thumbnail, registers it, then forks the repo and opens a pull request (that last step needs the GitHub CLI). The same steps are on [goofyfish.com/make](https://goofyfish.com/make).
 
-The skill lives in `.claude/skills/make-goofyfish-game/`, so it's also there when you clone the repo. `pnpm build` packs that folder into `skill.zip` and `skill.tar.gz` for the site. Once the skill has cloned the repo it follows the repo's copy, so old downloads still get the latest instructions.
+`pnpm build` also packs the skill into `skill.zip` and `skill.tar.gz` on the site, for people who want it in `~/.claude/skills/`. Started from outside the repo, it clones the repo first and then follows the repo's copy of itself, so old downloads still get the latest instructions.
 
 Helpers the skill uses, also handy by hand:
 
