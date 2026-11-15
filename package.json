@@ -8,7 +8,8 @@
     "preview": "astro preview",
     "typecheck": "astro check",
     "game:check": "node scripts/check-game.mjs",
-    "game:thumb": "node scripts/make-thumb.mjs"
+    "game:thumb": "node scripts/make-thumb.mjs",
+    "game:motion": "node scripts/check-motion.mjs"
   },
   "dependencies": {
     "astro": "^7.4.12"
