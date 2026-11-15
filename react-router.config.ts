@@ -3,5 +3,5 @@ import { games } from './app/lib/games';
 
 export default {
   ssr: false,
-  prerender: ['/', '/404', '/sitemap.xml', ...games.map((g) => `/${g.slug}`)],
+  prerender: ['/', '/make', '/404', '/sitemap.xml', ...games.map((g) => `/${g.slug}`)],
 } satisfies Config;

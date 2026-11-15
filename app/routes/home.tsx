@@ -1,5 +1,6 @@
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import type { Route } from './+types/home';
+import { GithubIcon } from '~/components/github-icon';
 import { Logo } from '~/components/logo';
 import { games, isNew, SITE, type Game } from '~/lib/games';
 import { seo } from '~/lib/seo';
@@ -46,7 +47,7 @@ function GameCard(props: { game: Game }) {
         )}
       </div>
       <div className='px-2 pt-3 pb-2'>
-        <h2 className='text-[15.5px] leading-tight font-semibold tracking-tight sm:text-[16px]'>{game.name}</h2>
+        <h2 className='font-display text-[17px] leading-tight sm:text-[18px]'>{game.name}</h2>
         <p className='mt-1 text-[13px] leading-snug text-neutral-500'>{game.tagline}</p>
       </div>
     </Link>
@@ -54,19 +55,12 @@ function GameCard(props: { game: Game }) {
 }
 
 export default function Home() {
-  const navigate = useNavigate();
-
-  const playRandom = () => {
-    const game = games[Math.floor(Math.random() * games.length)];
-    navigate(`/${game.slug}`);
-  };
-
   return (
     <main className='mx-auto max-w-[1120px] px-4 pb-20 sm:px-8'>
       <header className='mx-auto flex max-w-2xl flex-col items-center pt-16 text-center sm:pt-24'>
         <Logo className='animate-bob size-28 sm:size-32' />
 
-        <h1 className='mt-8 text-[38px] leading-[1.05] font-semibold tracking-[-0.035em] text-balance sm:text-[56px]'>
+        <h1 className='font-display mt-8 text-[40px] leading-[1.08] text-balance sm:text-[58px]'>
           Small, silly games for the browser.
         </h1>
         <p className='mt-5 max-w-md text-[16px] leading-relaxed text-pretty text-neutral-500 sm:text-[17px]'>
@@ -74,19 +68,19 @@ export default function Home() {
           laptop. Best with sound on.
         </p>
 
-        <div className='mt-8 flex items-center gap-3'>
-          <button
-            type='button'
-            onClick={playRandom}
-            className='flex h-11 items-center gap-2 rounded-xl bg-butter px-5 text-[15px] font-medium text-umber shadow-[0_0_0_1px_rgba(180,83,9,.2),0_2px_8px_rgba(0,0,0,.04)] transition hover:bg-butter-hi active:scale-[.98]'
+        <div className='mt-8 flex flex-wrap items-center justify-center gap-3'>
+          <Link
+            to='/make'
+            className='font-display flex h-11 items-center rounded-xl bg-butter px-5 text-[16px] text-umber shadow-[0_0_0_1px_rgba(180,83,9,.2),0_2px_8px_rgba(0,0,0,.04)] transition hover:bg-butter-hi active:scale-[.98]'
           >
-            Surprise me
-          </button>
+            Make your own game
+          </Link>
           <a
-            href='#games'
-            className='flex h-11 items-center rounded-xl bg-[#f5f5f5] px-5 font-mono text-[13px] shadow-[0_0_0_1px_rgba(0,0,0,.05)] transition hover:bg-[#ececec]'
+            href={SITE.github}
+            className='font-display flex h-11 items-center gap-2 rounded-xl bg-[#f5f5f5] px-5 text-[16px] shadow-[0_0_0_1px_rgba(0,0,0,.05)] transition hover:bg-[#ececec] active:scale-[.98]'
           >
-            {games.length} games
+            <GithubIcon className='size-[18px]' />
+            GitHub
           </a>
         </div>
       </header>
@@ -101,7 +95,13 @@ export default function Home() {
       </section>
 
       <footer className='mt-20 flex flex-col items-center gap-1 text-center text-[13.5px] text-neutral-400'>
-        <span>New games every now and then.</span>
+        <span>
+          {games.length} games so far.{' '}
+          <Link to='/make' className='underline decoration-neutral-300 underline-offset-2 transition-colors hover:text-neutral-900'>
+            Add yours
+          </Link>
+          .
+        </span>
         <a href='https://kamran.fyi' className='transition-colors hover:text-neutral-900'>
           Made by Kamran Ahmed
         </a>

@@ -17,6 +17,7 @@
 @theme {
   --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, monospace;
+  --font-display: 'Balsamiq Sans', 'Comic Sans MS', ui-rounded, system-ui, sans-serif;
 
   --color-ink: #1f2329;
   --color-butter: #fde68a;

@@ -13,6 +13,9 @@ export const links: Route.LinksFunction = () => [
   { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
   { rel: 'preload', href: '/fonts/geist-variable.woff2', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' },
   { rel: 'preload', href: '/fonts/geist-mono-variable.woff2', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' },
+  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+  { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
+  { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400&display=swap' },
 ];
 
 function Analytics() {

@@ -15,6 +15,7 @@ export const SITE = {
   description:
     'Small, silly games that run in your browser. Free, no ads, no sign-ups, no downloads. Best with sound on.',
   twitter: '@nilbuild',
+  github: 'https://github.com/nilbuild/goofyfish',
 };
 
 const allGames: Game[] = [

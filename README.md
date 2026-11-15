@@ -20,7 +20,11 @@ pnpm preview   # serve build/client on :4173
 
 ## Adding a game
 
-1. Drop the game in `public/games/<slug>.html`. Keep it self-contained, link back with `<a class="back" href="/" target="_top">← all games</a>`.
+The easy way: open the repo in [Claude Code](https://claude.com/claude-code) and ask for a game. The `make-goofyfish-game` skill in `.claude/skills/` pitches ideas, builds the game from its starter template in the house style, makes the thumbnail and social image, registers it and prepares a pull request. The same steps are on [goofyfish.com/make](https://goofyfish.com/make).
+
+By hand:
+
+1. Copy `.claude/skills/make-goofyfish-game/template.html` to `public/games/<slug>.html` and build the game. Follow `references/style-guide.md` in the same folder.
 2. Add `public/og/<slug>.jpg` (1200×630) and a thumbnail `public/thumbs/<slug>.webp` (transparent, ~640px, stick-figure style like the others).
 3. Add an entry to `app/lib/games.ts` with today's date as `addedAt`. The newest date gets the "New" badge.
 
