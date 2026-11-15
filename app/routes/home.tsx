@@ -39,13 +39,13 @@ function GameCard(props: { game: Game }) {
           className='aspect-[4/3] w-full transition-transform duration-300 group-hover:-rotate-1 group-hover:scale-[1.03]'
         />
         {isNew(game) && (
-          <span className='font-goofy absolute top-2 right-2 rounded-md bg-butter px-1.5 py-px text-[11.5px] text-umber shadow-[0_0_0_1px_rgba(180,83,9,.18)]'>
+          <span className='absolute top-2 right-2 rounded-md bg-butter px-1.5 py-0.5 font-mono text-[10.5px] uppercase tracking-wide text-umber shadow-[0_0_0_1px_rgba(180,83,9,.18)]'>
             New
           </span>
         )}
       </div>
       <div className='px-2 pt-3 pb-2'>
-        <h2 className='font-goofy text-[17px] leading-tight sm:text-[18px]'>{game.name}</h2>
+        <h2 className='text-[15.5px] leading-tight font-semibold tracking-tight sm:text-[16px]'>{game.name}</h2>
         <p className='mt-1 text-[13px] leading-snug text-neutral-500'>{game.tagline}</p>
       </div>
     </Link>
@@ -66,7 +66,7 @@ export default function Home() {
         <Fish className='animate-bob size-24 sm:size-28' />
         <span className='font-goofy mt-3 text-[22px] leading-none font-bold'>goofyfish</span>
 
-        <h1 className='font-goofy mt-10 text-[38px] leading-[1.05] text-balance sm:text-[56px]'>
+        <h1 className='mt-10 text-[38px] leading-[1.05] font-semibold tracking-[-0.035em] text-balance sm:text-[56px]'>
           Small, silly games for the browser.
         </h1>
         <p className='mt-5 max-w-md text-[16px] leading-relaxed text-pretty text-neutral-500 sm:text-[17px]'>
@@ -78,13 +78,13 @@ export default function Home() {
           <button
             type='button'
             onClick={playRandom}
-            className='font-goofy flex h-12 items-center gap-2 rounded-xl bg-butter px-6 text-[17px] text-umber shadow-[0_0_0_1px_rgba(180,83,9,.2),0_2px_8px_rgba(0,0,0,.04)] transition hover:bg-butter-hi active:scale-[.98]'
+            className='flex h-11 items-center gap-2 rounded-xl bg-butter px-5 text-[15px] font-medium text-umber shadow-[0_0_0_1px_rgba(180,83,9,.2),0_2px_8px_rgba(0,0,0,.04)] transition hover:bg-butter-hi active:scale-[.98]'
           >
             Surprise me
           </button>
           <a
             href='#games'
-            className='font-goofy flex h-12 items-center rounded-xl bg-[#f5f5f5] px-5 text-[17px] shadow-[0_0_0_1px_rgba(0,0,0,.05)] transition hover:bg-[#ececec]'
+            className='flex h-11 items-center rounded-xl bg-[#f5f5f5] px-5 font-mono text-[13px] shadow-[0_0_0_1px_rgba(0,0,0,.05)] transition hover:bg-[#ececec]'
           >
             {games.length} games
           </a>

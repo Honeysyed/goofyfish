@@ -15,11 +15,11 @@ export function NotFound(props: NotFoundProps) {
     <main className='mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center px-6 text-center'>
       <title>{`${title} · Goofy Fish`}</title>
       <Fish className='size-20 -scale-x-100 rotate-12' />
-      <h1 className='font-goofy mt-6 text-3xl'>{title}</h1>
+      <h1 className='mt-6 text-3xl font-semibold tracking-tight'>{title}</h1>
       <p className='mt-2 text-neutral-500'>{message}</p>
       <Link
         to='/'
-        className='font-goofy mt-8 inline-flex h-11 items-center rounded-xl bg-butter px-5 text-umber shadow-[0_0_0_1px_rgba(180,83,9,.2),0_2px_8px_rgba(0,0,0,.04)] transition-colors hover:bg-butter-hi'
+        className='mt-8 inline-flex h-11 font-medium items-center rounded-xl bg-butter px-5 text-umber shadow-[0_0_0_1px_rgba(180,83,9,.2),0_2px_8px_rgba(0,0,0,.04)] transition-colors hover:bg-butter-hi'
       >
         Back to the games
       </Link>
