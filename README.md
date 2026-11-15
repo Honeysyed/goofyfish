@@ -28,7 +28,7 @@ cd goofyfish && pnpm install
 claude "make a goofyfish game where you keep a balloon in the air"
 ```
 
-The `make-goofyfish-game` skill in `.claude/skills/` pitches ideas, builds the game from its starter template in the house style, checks it at phone and laptop sizes, makes the social image and the card thumbnail, registers it, then forks the repo and opens a pull request (that last step needs the GitHub CLI). The same steps are on [goofyfish.com/make](https://goofyfish.com/make).
+The `make-goofyfish-game` skill in `.claude/skills/` pitches ideas, builds the game from its starter template in the house style, checks it at phone and laptop sizes, makes the social image and the card thumbnail, registers it, then helps you fork the repo and open a pull request (with the GitHub CLI if you have it, otherwise through the browser). The same steps are on [goofyfish.com/make](https://goofyfish.com/make).
 
 `pnpm build` also packs the skill into `skill.zip` and `skill.tar.gz` on the site, for people who want it in `~/.claude/skills/`. Started from outside the repo, it clones the repo first and then follows the repo's copy of itself, so old downloads still get the latest instructions.
 

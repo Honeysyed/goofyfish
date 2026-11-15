@@ -11,7 +11,7 @@ This skill takes someone from an idea to an open pull request. Work through the 
 
 ## 1. Get the repo
 
-Check the tools first: `git --version`, `node --version` (20 or newer) and `pnpm --version`. If one is missing, tell the person what to install (pnpm: `npm i -g pnpm`) and stop until it's there. The GitHub CLI is only needed at the end, to submit.
+Check the tools first: `git --version`, `node --version` (20 or newer) and `pnpm --version`. If one is missing, tell the person what to install (pnpm: `npm i -g pnpm`) and stop until it's there.
 
 Check whether the current folder is the goofyfish repo: it has `app/lib/games.ts` and `public/games/`. If it is, run `pnpm install` if `node_modules` is missing.
 
@@ -120,22 +120,34 @@ Run `pnpm typecheck` and `pnpm build`, then open `http://localhost:5173/<slug>` 
 
 Show the person a short summary (name, how to play, the thumbnail, the check results) and ask if they're ready to submit.
 
-Submitting needs the GitHub CLI. Check `gh auth status`; if it's missing, ask them to install it (`brew install gh`, or see https://cli.github.com) and run `gh auth login`, then continue.
-
-Make sure there's a fork to push to. Run `git remote -v`: if `origin` still points at `nilbuild/goofyfish`, create the fork and rewire the remotes (the fork becomes `origin`, the main repo becomes `upstream`):
-
-```bash
-gh repo fork --remote
-```
-
-Then commit, push to the fork and open the pull request against the main repo:
+Commit on the branch:
 
 ```bash
 git add public/games/<slug>.html public/og/<slug>.jpg public/thumbs/<slug>.webp app/lib/games.ts
 git commit -m "Add <Game Name>"
-git push -u origin game/<slug>
-gh pr create --repo nilbuild/goofyfish --base main --head <their-github-username>:game/<slug> --title "Add <Game Name>" --body-file <file>
 ```
+
+Then get it onto their fork and open the pull request. Use the GitHub CLI if it's installed and signed in (`gh auth status`), otherwise walk them through the browser. Don't make them install anything.
+
+**With `gh`:**
+
+```bash
+gh repo fork --remote          # only if origin still points at nilbuild/goofyfish; makes the fork origin
+git push -u origin game/<slug>
+gh pr create --repo nilbuild/goofyfish --base main --head <their-username>:game/<slug> --title "Add <Game Name>" --body-file <file>
+```
+
+**Without `gh`:** guide them one step at a time and wait for each:
+
+1. Open https://github.com/nilbuild/goofyfish/fork and create the fork. Ask for their GitHub username.
+2. Add it as a remote and push (git will use their usual GitHub login):
+   ```bash
+   git remote add fork https://github.com/<their-username>/goofyfish.git
+   git push -u fork game/<slug>
+   ```
+3. Give them the ready link to open the pull request, with the title filled in:
+   `https://github.com/nilbuild/goofyfish/compare/main...<their-username>:goofyfish:game/<slug>?expand=1&title=Add%20<Game%20Name>`
+   and the body below to paste in.
 
 Write the body to a temp file first:
 
