@@ -14,12 +14,6 @@ const steps = [
   { title: 'Send it in', text: 'Say the word and it walks you through the pull request. We play it and put it on the site.' },
 ];
 
-const rules = [
-  'One input: tap, hold, swipe, or aim and let go.',
-  'A stick figure doing one physical thing.',
-  'Playing in 3 seconds, a run lasts under 3 minutes.',
-  'Fun for a 6-year-old and a 40-year-old.',
-];
 ---
 
 <Base
@@ -91,20 +85,6 @@ const rules = [
         ))
       }
     </ol>
-
-    <section class='mt-12 rounded-2xl bg-butter-soft/70 p-5 shadow-[0_0_0_1px_rgba(180,83,9,.12)] sm:p-6'>
-      <h2 class='font-display text-[20px]'>What makes a goofyfish game</h2>
-      <ul class='mt-3 flex flex-col gap-2 text-[15px] leading-relaxed text-neutral-700'>
-        {
-          rules.map((rule) => (
-            <li class='flex gap-2.5'>
-              <span class='mt-[9px] size-1.5 shrink-0 rounded-full bg-amber-ink/70' />
-              {rule}
-            </li>
-          ))
-        }
-      </ul>
-    </section>
 
     <div class='mt-10 flex flex-wrap items-center justify-center gap-3'>
       <a
