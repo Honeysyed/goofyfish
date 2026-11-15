@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Keep Hopping</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #ffffff;
+    --card: #ffffff;
+    --ink: #1f2329;
+    --muted: #7a7a7a;
+    --soft: #a3a3a3;
+    --faint: #d4d4d4;
+    --line: #ededed;
+    --dot: rgba(31, 41, 55, .13);
+    --chip: #f5f5f5;
+    --ring: rgba(0, 0, 0, .06);
+    --butter: #fde68a;
+    --butter-hi: #fcd34d;
+    --butter-soft: #fef3c7;
+    --umber: #78350f;
+    --amber: #b45309;
+    --font: 'Balsamiq Sans', 'Comic Sans MS', ui-rounded, system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; height: 100%; color: var(--ink); overflow: hidden;
+    background-color: var(--paper);
+    background-image: radial-gradient(circle, var(--dot) 0.8px, transparent 1px);
+    background-size: 24px 24px; background-position: 12px 12px;
+    touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
+    font-family: var(--font); font-weight: 400;
+  }
+  h1, b, strong { font-weight: 400; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; cursor: pointer; }
+  button { font: inherit; color: inherit; border: 0; background: none; cursor: pointer; outline: none; padding: 0; }
+  .panel { background: var(--card); border-radius: 14px; box-shadow: 0 0 0 1px var(--ring), 0 2px 8px rgba(0, 0, 0, .04), 0 1px 2px rgba(0, 0, 0, .03); }
+  .label { font-size: 13px; color: var(--muted); line-height: 1.2; }
+
+  #hud {
+    position: fixed; left: 0; top: 0;
+    padding: calc(env(safe-area-inset-top, 0px) + 20px) 0 0 max(20px, env(safe-area-inset-left, 0px));
+    pointer-events: none; transition: opacity .35s ease;
+  }
+  #hud.hidden { opacity: 0; }
+  .board { padding: 14px 18px; display: flex; align-items: flex-end; gap: 28px; }
+  .stat .label { margin-top: 6px; }
+  #score { font-size: 44px; line-height: .85; font-variant-numeric: tabular-nums; display: inline-block; transform-origin: left bottom; }
+  #score.bump { animation: bump .35s ease; }
+  @keyframes bump { 0% { transform: scale(1); } 35% { transform: scale(1.12); } 100% { transform: scale(1); } }
+  #best { font-size: 22px; line-height: 1; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+  #hint {
+    position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 28px); transform: translateX(-50%);
+    font-size: 14.5px; color: var(--muted); white-space: nowrap; pointer-events: none; transition: opacity .4s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  #hint.hidden { opacity: 0; }
+  kbd { font: inherit; font-size: 12px; color: #5a5a5a; background: var(--chip); box-shadow: 0 0 0 1px rgba(0, 0, 0, .07); border-radius: 6px; padding: 3px 8px; line-height: 1.25; }
+  @media (hover: none) { .kbd-only { display: none; } }
+
+  #overlay {
+    position: fixed; inset: 0; display: grid; place-items: center; padding: 20px;
+    background: rgba(255, 255, 255, .6);
+    opacity: 0; pointer-events: none; transition: opacity .3s ease; overflow-y: auto;
+  }
+  #overlay.on { opacity: 1; pointer-events: auto; }
+  .card {
+    width: min(360px, 100%); background: var(--card); border-radius: 18px; padding: 28px;
+    box-shadow: 0 0 0 1px var(--ring), 0 16px 40px -14px rgba(0, 0, 0, .16), 0 1px 2px rgba(0, 0, 0, .04);
+    transform: translateY(12px); transition: transform .35s cubic-bezier(.2, .9, .3, 1); display: none;
+  }
+  #overlay.on .card.show { transform: none; }
+  .card.show { display: block; }
+  .row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .logo { width: 46px; height: 46px; border-radius: 12px; background: #262626; display: grid; place-items: center; margin-bottom: 20px; }
+  .logo svg { width: 26px; height: 26px; }
+  .title { font-size: 32px; line-height: 1; margin: 0; }
+  .keys { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--muted); font-size: 15px; margin: 18px 0 10px; }
+  .tag { color: var(--muted); font-size: 15px; line-height: 1.5; margin: 0 0 26px; }
+  .chip { display: inline-flex; align-items: center; font-size: 13px; padding: 3px 9px; border-radius: 7px; background: var(--butter); color: var(--umber); white-space: nowrap; }
+  .actions { display: flex; gap: 10px; }
+  .btn { display: flex; align-items: center; justify-content: center; gap: 10px; height: 50px; border-radius: 12px; font-size: 17px; transition: transform .12s, background .2s; }
+  .btn:active { transform: scale(.98); }
+  .btn.primary { flex: 1; background: var(--butter); color: var(--umber); box-shadow: 0 0 0 1px rgba(180, 83, 9, .2), 0 2px 8px rgba(0, 0, 0, .04); }
+  .btn.primary kbd { background: rgba(255, 255, 255, .55); color: #92400e; box-shadow: none; }
+  .btn.ghost { width: 50px; flex: none; background: var(--chip); box-shadow: 0 0 0 1px rgba(0, 0, 0, .05); }
+  @media (hover: hover) {
+    .btn.primary:hover { background: var(--butter-hi); }
+    .btn.ghost:hover { background: #ececec; }
+  }
+  .btn svg { width: 19px; height: 19px; }
+  .foot { text-align: center; color: var(--soft); font-size: 13px; line-height: 1.5; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .foot:empty { display: none; }
+  .result { display: flex; align-items: flex-end; gap: 36px; margin: 22px 0 28px; }
+  .result .label { margin-top: 8px; }
+  #endScore { font-size: 72px; line-height: .8; font-variant-numeric: tabular-nums; display: block; }
+  #endBest { font-size: 32px; line-height: .9; font-variant-numeric: tabular-nums; }
+  #toast {
+    position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 24px); transform: translate(-50%, 20px);
+    background: #262626; color: #fff; font-size: 14px; padding: 10px 16px; border-radius: 10px;
+    opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; white-space: nowrap; z-index: 5;
+  }
+  #toast.on { opacity: 1; transform: translate(-50%, 0); }
+  .back { position: fixed; z-index: 6; top: calc(env(safe-area-inset-top, 0px) + 22px); right: max(20px, env(safe-area-inset-right, 0px)); font-size: 14px; color: var(--soft); text-decoration: none; }
+  .back:hover { color: var(--ink); }
+  @media (max-width: 420px) {
+    #hud { padding-left: max(14px, env(safe-area-inset-left, 0px)); padding-top: calc(env(safe-area-inset-top, 0px) + 14px); }
+    .board { padding: 12px 14px; }
+    #score { font-size: 38px; }
+    .back { top: calc(env(safe-area-inset-top, 0px) + 16px); right: max(14px, env(safe-area-inset-right, 0px)); font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<a class="back" href="/" target="_top">← all games</a>
+
+<div id="hud" class="hidden">
+  <div class="board panel">
+    <div class="stat"><div id="score">0</div><div class="label">Score</div></div>
+    <div class="stat"><div id="best">0</div><div class="label">Best</div></div>
+  </div>
+</div>
+
+<div id="hint" class="hidden"><span>Tap to hop</span><span class="kbd-only">or</span><kbd class="kbd-only">Space</kbd></div>
+
+<div id="overlay" class="on">
+  <div class="card show" id="startCard">
+    <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2.2" fill="#fff"/><path d="M12 7.5v6M12 13.5l-3 5M12 13.5l3 5M12 9.5l-3.5 2M12 9.5l3.5 2"/></svg></div>
+    <h1 class="title">Keep hopping</h1>
+    <div class="keys"><kbd>Tap</kbd> to hop over the rolling balls</div>
+    <p class="tag">Every ball you clear is a point. They speed up.</p>
+    <div class="actions">
+      <button class="btn primary" id="playBtn"><span>Play</span><kbd class="kbd-only">Space</kbd></button>
+    </div>
+    <div class="foot" id="startFoot"></div>
+  </div>
+  <div class="card" id="endCard">
+    <div class="row">
+      <div class="label">Round over</div>
+      <span class="chip" id="endChip" style="display:none">New best</span>
+    </div>
+    <div class="result">
+      <div><span id="endScore">0</span><div class="label">Hops</div></div>
+      <div><div id="endBest">0</div><div class="label">Best</div></div>
+    </div>
+    <div class="actions">
+      <button class="btn primary" id="againBtn"><span>Play again</span><kbd class="kbd-only">Space</kbd></button>
+      <button class="btn ghost" id="shareBtn" aria-label="Download image" title="Download image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></button>
+    </div>
+    <div class="foot" id="endFoot"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const SLUG = 'hopping';
+const GAME = 'Keep Hopping';
+const COL = { bg: '#ffffff', ink: '#141414', far: '#9a9a9a', muted: '#737373', faint: '#d4d4d4', butter: '#fde68a', accent: '#b45309', dot: 'rgba(31,41,55,0.13)' };
+const GRAVITY = 2200;
+const HOP = 760;
+const HEAD_R = 7.8, LIMB = 5, ARM = 4.2, TORSO = 8.5;
+
+const $ = (id) => document.getElementById(id);
+const cv = $('c');
+let ctx = cv.getContext('2d');
+const Q = new URLSearchParams(location.search);
+window.__freeze = Q.has('still');
+
+const store = {
+  get(k, d) {
+    try {
+      const v = localStorage.getItem(SLUG + '.' + k);
+      return v === null ? d : JSON.parse(v);
+    } catch (e) {
+      return d;
+    }
+  },
+  set(k, v) {
+    try {
+      localStorage.setItem(SLUG + '.' + k, JSON.stringify(v));
+    } catch (e) {
+      return;
+    }
+  },
+};
+const life = Object.assign({ best: 0, games: 0, hops: 0, seenHint: false }, store.get('life', {}));
+
+let dpr = 1, cw = 0, ch = 0, groundY = 0, figX = 0;
+function resize() {
+  dpr = Math.min(window.devicePixelRatio || 1, 3);
+  cw = innerWidth;
+  ch = innerHeight;
+  cv.width = Math.round(cw * dpr);
+  cv.height = Math.round(ch * dpr);
+  groundY = Math.round(ch * 0.68);
+  figX = Math.round(Math.min(cw * 0.28, 220));
+}
+addEventListener('resize', resize);
+resize();
+
+let actx = null, bus = null;
+function audio() {
+  if (!actx) {
+    try {
+      actx = new (window.AudioContext || window.webkitAudioContext)();
+      bus = actx.createGain();
+      bus.gain.value = 0.8;
+      bus.connect(actx.destination);
+    } catch (e) {
+      actx = null;
+    }
+  }
+  if (actx && actx.state === 'suspended') {
+    actx.resume();
+  }
+}
+function partial(freq, f1, dur, vol, type, delay) {
+  if (!actx) {
+    return;
+  }
+  const t = actx.currentTime + (delay || 0);
+  const o = actx.createOscillator();
+  const g = actx.createGain();
+  o.type = type || 'sine';
+  o.frequency.setValueAtTime(freq, t);
+  if (f1 && f1 !== freq) {
+    o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+  }
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.linearRampToValueAtTime(vol, t + 0.004);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g).connect(bus);
+  o.start(t);
+  o.stop(t + dur + 0.05);
+}
+const SND = {
+  hop() {
+    partial(320, 640, 0.12, 0.12, 'triangle');
+  },
+  land() {
+    partial(110, 60, 0.12, 0.25, 'sine');
+  },
+  point() {
+    partial(784, 784, 0.12, 0.05, 'triangle');
+    partial(1175, 1175, 0.18, 0.04, 'triangle', 0.06);
+  },
+  bonk() {
+    partial(200, 70, 0.35, 0.35, 'sine');
+    partial(140, 90, 0.25, 0.12, 'square', 0.02);
+  },
+};
+
+let mode = 'menu';
+const me = { y: 0, vy: 0, air: false, squash: 0, hurt: 0 };
+let balls = [];
+let score = 0, speed = 260, spawnIn = 1, clock = 0, lastResult = null;
+const popups = [];
+
+function startGame() {
+  audio();
+  mode = 'play';
+  score = 0;
+  speed = 260;
+  spawnIn = 1.2;
+  balls = [];
+  me.y = 0;
+  me.vy = 0;
+  me.air = false;
+  me.hurt = 0;
+  $('overlay').classList.remove('on');
+  $('hud').classList.remove('hidden');
+  $('hint').classList.toggle('hidden', life.seenHint);
+  updateHud();
+}
+
+function endGame() {
+  mode = 'over';
+  me.hurt = 1;
+  SND.bonk();
+  buzz(40);
+  life.games++;
+  const isBest = score > life.best;
+  life.best = Math.max(life.best, score);
+  store.set('life', life);
+  lastResult = { score, isBest };
+  setTimeout(() => {
+    $('endScore').textContent = score;
+    $('endBest').textContent = life.best;
+    $('endChip').style.display = isBest && score > 0 ? '' : 'none';
+    $('endFoot').innerHTML = lifetimeLine();
+    $('startCard').classList.remove('show');
+    $('endCard').classList.add('show');
+    $('overlay').classList.add('on');
+    $('hud').classList.add('hidden');
+    $('hint').classList.add('hidden');
+  }, 650);
+}
+
+function lifetimeLine() {
+  if (!life.games) {
+    return '';
+  }
+  return `Best ${life.best} · ${life.games} ${life.games === 1 ? 'game' : 'games'} · ${life.hops.toLocaleString()} hops`;
+}
+
+function updateHud() {
+  const el = $('score');
+  if (el.textContent !== String(score)) {
+    el.classList.remove('bump');
+    void el.offsetWidth;
+    el.classList.add('bump');
+  }
+  el.textContent = score;
+  $('best').textContent = Math.max(life.best, score);
+}
+
+function buzz(ms) {
+  try {
+    if (navigator.vibrate) {
+      navigator.vibrate(ms);
+    }
+  } catch (e) {
+    return;
+  }
+}
+
+function hop() {
+  audio();
+  if (mode !== 'play' || me.air) {
+    return;
+  }
+  me.vy = -HOP;
+  me.air = true;
+  life.hops++;
+  SND.hop();
+  if (!life.seenHint) {
+    life.seenHint = true;
+    store.set('life', life);
+    $('hint').classList.add('hidden');
+  }
+}
+
+cv.addEventListener('pointerdown', (e) => {
+  e.preventDefault();
+  hop();
+});
+addEventListener('keydown', (e) => {
+  if (e.code !== 'Space' && e.code !== 'Enter' && e.code !== 'ArrowUp') {
+    return;
+  }
+  e.preventDefault();
+  if (e.repeat) {
+    return;
+  }
+  if (mode !== 'play') {
+    startGame();
+    return;
+  }
+  hop();
+});
+addEventListener('contextmenu', (e) => e.preventDefault());
+$('playBtn').addEventListener('click', startGame);
+$('againBtn').addEventListener('click', startGame);
+$('shareBtn').addEventListener('click', () => share(lastResult));
+
+function update(dt) {
+  clock += dt;
+  me.squash = Math.max(0, me.squash - dt * 5);
+  if (mode !== 'play') {
+    return;
+  }
+  speed += dt * 6;
+  me.vy += GRAVITY * dt;
+  me.y += me.vy * dt;
+  if (me.y >= 0) {
+    if (me.air) {
+      SND.land();
+      me.squash = 1;
+    }
+    me.y = 0;
+    me.vy = 0;
+    me.air = false;
+  }
+  spawnIn -= dt;
+  if (spawnIn <= 0) {
+    const r = 14 + Math.random() * 10;
+    balls.push({ x: cw + r + 20, r, spin: 0, hot: Math.random() < 0.25, passed: false });
+    spawnIn = 0.9 + Math.random() * 1.1 - Math.min(0.5, score * 0.01);
+  }
+  for (const b of balls) {
+    b.x -= speed * dt * (b.hot ? 1.25 : 1);
+    b.spin -= (speed * dt) / b.r;
+    if (Math.abs(b.x - figX) < b.r + 6 && -me.y < b.r * 2 - 4) {
+      endGame();
+      return;
+    }
+    if (!b.passed && b.x < figX - b.r) {
+      b.passed = true;
+      score += b.hot ? 2 : 1;
+      popups.push({ text: b.hot ? '+2' : '+1', x: figX, y: groundY - 120 + me.y, t: 0 });
+      SND.point();
+      updateHud();
+    }
+  }
+  balls = balls.filter((b) => b.x > -b.r - 20);
+  for (const p of popups) {
+    p.t += dt;
+  }
+  while (popups.length && popups[0].t > 0.9) {
+    popups.shift();
+  }
+}
+
+const WOBBLE = Array.from({ length: 512 }, (_, i) => Math.sin(i * 0.37) * 0.35 + Math.sin(i * 1.71 + 1) * 0.22);
+function drawGround(x0, x1, y) {
+  ctx.strokeStyle = COL.ink;
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  for (let x = x0, i = 0; x <= x1; x += 8, i++) {
+    const yy = y + WOBBLE[i % 512];
+    if (x === x0) {
+      ctx.moveTo(x, yy);
+    } else {
+      ctx.lineTo(x, yy);
+    }
+  }
+  ctx.stroke();
+}
+
+function strokePath(pts, w, col) {
+  ctx.strokeStyle = col;
+  ctx.lineWidth = w;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.beginPath();
+  ctx.moveTo(pts[0][0], pts[0][1]);
+  for (let i = 1; i < pts.length; i++) {
+    ctx.lineTo(pts[i][0], pts[i][1]);
+  }
+  ctx.stroke();
+}
+
+function drawFigure(x, y, air, squash, hurt) {
+  ctx.save();
+  ctx.translate(x, y);
+  const s = 1 - squash * 0.12;
+  ctx.scale(1, s);
+  const t = clock * 9;
+  if (hurt) {
+    ctx.rotate(-0.5);
+  }
+  const knee = air ? [[6, -22], [-4, -20]] : [[5 + Math.sin(t) * 2, -18], [-5 - Math.sin(t) * 2, -18]];
+  const foot = air ? [[-2, -10], [-12, -8]] : [[8, 0], [-8, 0]];
+  const hand = air ? [[16, -66], [-14, -64]] : [[12, -40 + Math.sin(t) * 2], [-10, -40 - Math.sin(t) * 2]];
+  strokePath([[0, -58], [hand[1][0] * 0.5, -50], hand[1]], ARM, COL.far);
+  strokePath([[0, -34], knee[1], foot[1]], LIMB, COL.far);
+  strokePath([[0, -34], [0, -60]], TORSO, COL.ink);
+  strokePath([[0, -34], knee[0], foot[0]], LIMB, COL.ink);
+  strokePath([[0, -58], [hand[0][0] * 0.5, -50], hand[0]], ARM, COL.ink);
+  ctx.fillStyle = COL.ink;
+  ctx.beginPath();
+  ctx.arc(1, -72, HEAD_R, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawBall(b) {
+  ctx.save();
+  ctx.translate(b.x, groundY - b.r);
+  ctx.rotate(b.spin);
+  ctx.fillStyle = b.hot ? COL.butter : '#fff';
+  ctx.strokeStyle = COL.ink;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(0, 0, b.r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-b.r * 0.6, 0);
+  ctx.lineTo(b.r * 0.6, 0);
+  ctx.lineWidth = 1.4;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function render() {
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cw, ch);
+  drawGround(-10, cw + 10, groundY);
+  ctx.fillStyle = 'rgba(0,0,0,0.08)';
+  ctx.beginPath();
+  ctx.ellipse(figX, groundY + 2, 14 + me.y * 0.05, 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  for (const b of balls) {
+    drawBall(b);
+  }
+  drawFigure(figX, groundY + me.y, me.air, me.squash, mode === 'over');
+  ctx.font = "400 20px 'Balsamiq Sans', system-ui, sans-serif";
+  ctx.textAlign = 'center';
+  for (const p of popups) {
+    ctx.globalAlpha = 1 - p.t / 0.9;
+    ctx.fillStyle = COL.accent;
+    ctx.fillText(p.text, p.x, p.y - p.t * 40);
+  }
+  ctx.globalAlpha = 1;
+}
+
+function shareCanvas(res) {
+  const SW = 1080, SH = 1350;
+  const c = document.createElement('canvas');
+  c.width = SW;
+  c.height = SH;
+  const x = c.getContext('2d');
+  const font = (s) => `400 ${s}px 'Balsamiq Sans', system-ui, sans-serif`;
+  x.fillStyle = COL.bg;
+  x.fillRect(0, 0, SW, SH);
+  x.fillStyle = COL.dot;
+  for (let y = 18; y < SH; y += 36) {
+    for (let xx = 18; xx < SW; xx += 36) {
+      x.beginPath();
+      x.arc(xx, y, 1.6, 0, Math.PI * 2);
+      x.fill();
+    }
+  }
+  if (res.isBest) {
+    x.fillStyle = COL.accent;
+    x.font = font(30);
+    x.fillText('PERSONAL BEST', 82, 108);
+  }
+  x.fillStyle = COL.ink;
+  x.font = font(250);
+  x.fillText(String(res.score), 70, 330);
+  x.fillStyle = COL.muted;
+  x.font = font(30);
+  x.fillText(res.score === 1 ? 'HOP' : 'HOPS', 82, 386);
+  x.fillStyle = COL.faint;
+  x.font = font(26);
+  x.fillText(GAME.toUpperCase(), 84, 1196);
+  return c;
+}
+
+let toastTimer = 0;
+function toast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('on');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('on'), 2400);
+}
+
+async function share(res) {
+  if (!res) {
+    return;
+  }
+  try {
+    await document.fonts.ready;
+    const blob = await new Promise((r) => shareCanvas(res).toBlob(r, 'image/png'));
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${SLUG}-${res.score}.png`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    toast('Image saved');
+  } catch (e) {
+    toast('Could not save the image');
+  }
+}
+
+$('startFoot').innerHTML = lifetimeLine();
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.max(0, Math.min(0.05, (now - last) / 1000));
+  last = now;
+  if (!window.__freeze) {
+    update(dt);
+  }
+  render();
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

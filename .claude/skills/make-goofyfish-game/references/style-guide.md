@@ -1,0 +1,59 @@
+# goofyfish style guide
+
+Every game looks like a quick ink drawing on dotted paper. Keep the world mostly black, white and grey, and save colour for the one thing that matters.
+
+## Palette
+
+| Token | Value | Use |
+|---|---|---|
+| paper | `#ffffff` | page and canvas background |
+| dot | `rgba(31,41,55,.13)` | 24px dot grid behind everything (CSS background, not canvas) |
+| ink | `#141414` (canvas) / `#1f2329` (UI) | figures, outlines, ground |
+| far limb | `#9a9a9a` | the stick figure's back arm and back leg |
+| muted | `#737373` / `#7a7a7a` | labels, secondary text |
+| faint | `#d4d4d4` | guides, inactive things |
+| butter | `#fde68a`, `#fcd34d` | the hero accent: primary button, chips, highlighted objects |
+| butter-soft | `#fef3c7` | soft highlight panels |
+| amber | `#b45309` | score popups, "perfect" moments, a headband |
+| umber | `#78350f` | text on butter |
+
+Use one accent per moment. If everything is yellow, nothing is.
+
+## Stick figures
+
+- Head: a **solid black circle**, radius about 7.8 at the game's base scale. Never draw a face on the hero.
+- Torso: stroke width 8.5. Legs: 5. Arms: 4.2. Round caps and round joins.
+- Front limbs in ink, back limbs in `#9a9a9a` (this gives depth without shading).
+- Proportions at base scale: thigh and shin about 30 each, upper arm and forearm about 21 each, head centre about 20 above the chest.
+- Pose with keyframes and blend between them (see `P.*` poses and `ik()` in `stacks.html`). Small idle breathing and squash on landing make it feel alive.
+- Enemies ("goons") are round blobs with googly eyes, or grey stick figures.
+
+## World drawing
+
+- Ground: a 2px ink line with a slight wobble (precomputed `WOBBLE` table), never a filled floor.
+- Props: thin ink outlines (1.2 to 2px) with white or butter fills. Simple shapes, a little hand-drawn wobble is welcome.
+- Soft contact shadows: a flat ellipse at about 8 to 14% black.
+- Particles: small ink dots, dust puffs, chips. Keep them sparse.
+- No gradients, glows or photo textures.
+
+## UI chrome
+
+All UI is HTML over the canvas, in Balsamiq Sans 400.
+
+- **HUD**: one white `.panel` top-left (radius 14, hairline ring shadow). The big number is 44px, labels 13px muted.
+- **Hint pill**: bottom centre, muted 14.5px text plus a `<kbd>` for the key. Hide it after the first successful action, and remember that in `store`.
+- **Start card**: dark rounded-square logo glyph (a white line icon), title 32px, a `.keys` row with `<kbd>` chips, one-line tagline, the butter **Play** button with a `Space` kbd, and a footer with lifetime stats.
+- **End card**: "Round over" label, a "New best" chip when earned, the result in a 72px number, one or two secondary stats, **Play again** plus a ghost download button.
+- **Back link**: `← all games`, top-right, soft grey, `target="_top"`.
+- Hide `.kbd-only` elements on touch devices (`@media (hover: none)`).
+
+## Feel
+
+- Every action gets a sound: short synthesized blips, thunks and noise bursts. Keep volumes low. A small reverb send makes it feel physical.
+- Reward precision: "Perfect" popups in amber, chains and multipliers, a little screen shake or squash on big moments.
+- Vibrate (`navigator.vibrate`) briefly on hits, on devices that support it.
+- Difficulty ramps up smoothly. Losing should feel fair and funny, never cheap.
+
+## Share image
+
+1080×1350 PNG on the dotted paper. The main number huge (about 250px) top-left, its label in spaced caps underneath, two or three stats, the game name in faint spaced caps near the bottom, and ideally a drawing of the final moment (the tower, the pose, the score card).
