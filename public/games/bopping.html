@@ -219,6 +219,7 @@ let ctx = cv.getContext('2d');
 const Q = new URLSearchParams(location.search);
 window.__freeze = Q.has('still');
 const BOT = Q.has('bot');
+window.__bot = BOT;
 const DEBUG = BOT || Q.has('still');
 
 const lerp = (a, b, k) => a + (b - a) * k;
@@ -619,6 +620,7 @@ function lose(kind, b) {
   life.bestTime = Math.max(life.bestTime, playTime);
   store.set('life', life);
   lastResult = { score, isBest, time: playTime, bops, perfects, saves, blocks, kind, count: balloons.filter((x) => !x.gone).length + (kind === 'pop' ? 1 : 0) };
+  window.__lastRun = lastResult;
   if (isBest && score > 0) {
     setTimeout(() => SND.record(), 700);
   }

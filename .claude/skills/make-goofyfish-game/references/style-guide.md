@@ -25,7 +25,7 @@ Use one accent per moment. If everything is yellow, nothing is.
 - Torso: stroke width 8.5. Legs: 5. Arms: 4.2. Round caps and round joins.
 - Front limbs in ink, back limbs in `#9a9a9a` (this gives depth without shading).
 - Proportions at base scale: thigh and shin about 30 each, upper arm and forearm about 21 each, head centre about 20 above the chest.
-- Pose with keyframes and blend between them (see `P.*` poses and `ik()` in `stacks.html`). Small idle breathing and squash on landing make it feel alive.
+- Pose with keyframes and blend between them: use `P`, `mk()`, `Actor` and `drawFigure()` from `snippets.js` rather than drawing your own. Small idle breathing and a crouch on landing make it feel alive.
 - Enemies ("goons") are round blobs with googly eyes, or grey stick figures.
 
 ## World drawing

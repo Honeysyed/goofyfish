@@ -1,15 +1,32 @@
-import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { copyFile, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const [slug, scene] = process.argv.slice(2);
+const args = process.argv.slice(2);
+const useAt = args.indexOf('--use');
+const slug = args[0];
+const scene = useAt === -1 ? args[1] : null;
 
-if (!slug || !scene) {
+if (!slug || (useAt === -1 && !scene)) {
   console.error('Usage: pnpm game:thumb <slug> "<a stick figure doing the game\'s action with its one prop>"');
+  console.error('       pnpm game:thumb <slug> --use <n>   (put attempt n back on the card)');
   process.exit(1);
 }
+
+await mkdir('tmp/thumbs', { recursive: true });
+const out = `public/thumbs/${slug}.webp`;
+
+if (useAt !== -1) {
+  const n = args[useAt + 1];
+  await copyFile(`tmp/thumbs/${slug}-${n}.webp`, out);
+  console.log(`saved ${out} from attempt ${n}`);
+  process.exit(0);
+}
+
+const taken = (await readdir('tmp/thumbs')).filter((f) => f.startsWith(`${slug}-`) && f.endsWith('.png')).length;
+const attempt = taken + 1;
 
 const key = process.env.OPENAI_API_KEY;
 if (!key) {
@@ -21,7 +38,8 @@ const STYLE =
   'The attached image is a STYLE REFERENCE ONLY (screenshots from my stick-figure browser games); do not copy its layout, text or scene. ' +
   'Draw a brand-new, very simple illustration in exactly that drawing style: a stick figure with a round solid black head and thick black rounded limbs ' +
   '(some limbs a lighter grey for depth), thin clean black ink lines for props, white fills, light grey secondary details, and one small butter-yellow (#fde68a) ' +
-  'or amber (#b45309) accent. Minimal: one stick figure and one prop, no background scenery, no ground except an optional short thin ground line, no text, ' +
+  'or amber (#b45309) accent. Wide landscape composition that fills a 3:2 frame: the figure and its prop side by side, not stacked ' +
+  'vertically, filling most of the width. Minimal: one stick figure and one prop, no background scenery, no ground except an optional short thin ground line, no text, ' +
   'no letters, no UI, no numbers. Centered with generous margin on a pure flat white background, no dot grid.';
 
 const ref = await readFile(join(here, 'assets', 'thumb-style-ref.jpg'));
@@ -45,8 +63,7 @@ if (!res.ok) {
 }
 
 const raw = Buffer.from(json.data[0].b64_json, 'base64');
-await mkdir('tmp/thumbs', { recursive: true });
-await writeFile(`tmp/thumbs/${slug}.png`, raw);
+await writeFile(`tmp/thumbs/${slug}-${attempt}.png`, raw);
 
 const { data, info } = await sharp(raw).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
 const { width, height } = info;
@@ -104,11 +121,15 @@ if (x1 <= x0 || y1 <= y0) {
 const pad = 4;
 const left = Math.max(0, x0 - pad);
 const top = Math.max(0, y0 - pad);
-const out = `public/thumbs/${slug}.webp`;
-await sharp(data, { raw: { width, height, channels: 4 } })
+const attemptOut = `tmp/thumbs/${slug}-${attempt}.webp`;
+const { width: tw, height: th } = await sharp(data, { raw: { width, height, channels: 4 } })
   .extract({ left, top, width: Math.min(width, x1 + pad) - left, height: Math.min(height, y1 + pad) - top })
   .resize({ width: 640, height: 640, fit: 'inside', withoutEnlargement: true })
   .webp({ quality: 86 })
-  .toFile(out);
+  .toFile(attemptOut);
+await copyFile(attemptOut, out);
 
-console.log(`saved ${out} (raw image kept in tmp/thumbs/${slug}.png)`);
+console.log(`saved ${out} (${tw}×${th}), attempt ${attempt}; all attempts are kept in tmp/thumbs/`);
+if (tw < th * 1.2) {
+  console.log('It came out tall and narrow, so it will look small on its card. Try again with a wider scene.');
+}

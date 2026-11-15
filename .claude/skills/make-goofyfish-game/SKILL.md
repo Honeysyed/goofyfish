@@ -51,17 +51,24 @@ Once they pick, create the branch: `git checkout -b game/<slug>`.
 
 ## 3. Build it
 
-Copy `.claude/skills/make-goofyfish-game/template.html` to `public/games/<slug>.html` and replace "Keep Hopping" with the new game. Keep the structure:
+Copy `.claude/skills/make-goofyfish-game/template.html` to `public/games/<slug>.html` and replace "Keep Hopping" with the new game. The template is a complete small game built from the same pieces as the existing games, so keep its structure and swap out the gameplay:
 
-- `<canvas id="c">` fills the screen; the whole game world is drawn on it.
+- `<canvas id="c">` fills the screen; the whole game world is drawn on it, in world units fitted to the screen by `fitView()`.
 - `.back` link top-right (`href="/" target="_top"`), the HUD panel top-left, the hint pill at the bottom, the overlay with a start card (`#playBtn`) and an end card (`#againBtn`, `#shareBtn`), and a toast.
-- `store` saves lifetime stats to `localStorage` under `<slug>.` keys. Show the best score on both cards.
-- Sounds are synthesized with Web Audio. No audio files. Create the context on the first tap.
+- `store` saves lifetime stats to `localStorage` under `<slug>.` keys and skips saving in test modes. Show the best score on both cards.
+- Sounds are synthesized with Web Audio (`partial`, `hiss`, `SND`). No audio files. `audio()` runs on the first tap.
 - `pointerdown` on the canvas plus `Space`/`Enter` on the keyboard. `Space` also starts and restarts from the cards.
-- The end card's download button renders a 1080×1350 share image (`shareCanvas`).
-- `?still` freezes the loop and `?autoplay` skips the start card, for screenshots.
+- The end card's download button renders a 1080×1350 share image (`shareCanvas`), with the stick figure drawn on it.
 
-Open one or two existing games in `public/games/` (`stacks.html`, `hoops.html`) and borrow their patterns: poses, popups, chains, screen shake, the share image layout.
+**Reuse the shared pieces.** `.claude/skills/make-goofyfish-game/references/snippets.js` has everything the template uses, documented: the posed stick figure (`P` poses, `mk()` to make new ones, `Actor` to animate between them, `drawFigure()` with flip and grey "goon" colours), wobbly ground, ink shapes, popups that stay on screen, particles, screen shake, the sound engine and `fitView()`. Don't draw your own stick figure. For more patterns (chains, wind, cameras that follow the action, richer share images) read an existing game such as `public/games/stacks.html` or `public/games/bopping.html`.
+
+**Design for both screens from the start.** Pick a world size in `VIEW` that suits a laptop. On portrait phones `fitView()` shows at least `VIEW.minW` world units centred on `VIEW.focusX`, so set those so the action stays big and visible; things outside that slice should scroll, roll or fly into view rather than sit off-screen.
+
+**Test modes.** Keep these working, the checks rely on them:
+
+- `?bot`: the game plays itself like a decent first-timer, with a human reaction delay and some aim error, never perfectly. Set `window.__bot = true` when it's on, and set `window.__lastRun = { score, time }` when a run ends (time in seconds). Adapt the template's `bot()` to your game.
+- `?autoplay` skips the start card; `?still` freezes the loop for screenshots.
+- No stats are saved in any test mode (`TEST`).
 
 Rules:
 
@@ -79,11 +86,13 @@ Start the dev server in the background with `pnpm dev`, then run:
 pnpm game:check <slug>
 ```
 
-It loads the game at phone and laptop sizes, presses Play, fails on any console error, saves screenshots to `tmp/check/`, and writes the social image to `public/og/<slug>.jpg`. Look at every screenshot. If you have a browser tool, also play a full run: start, lose, end card, play again, by tap and by keyboard, and check the best score survives a reload.
+It loads the game at phone and laptop sizes, presses Play, fails on any console error and saves screenshots to `tmp/check/`. With a `?bot` mode it also plays three bot runs and prints how long each lasted, and if `public/og/<slug>.jpg` doesn't exist yet it takes the social image 7 seconds into a bot run. Pass `--og` to retake that image; otherwise it's left alone.
 
-Fix what you find and run the check again. A first-timer should survive at least 20 seconds, and difficulty should ramp up.
+Look at every screenshot. Aim for bot runs of at least 20 seconds (a first-timer should get that far) and well under 3 minutes (the difficulty has to ramp). Tune, then run the check again.
 
-The social image should show a good moment mid-game with the HUD visible and no overlay. If the automatic one is dull, retake it at 1200×630.
+Driving the game through browser-tool clicks is too slow to react in real time. To try specific situations, run code inside the page (call the game's own functions, or dispatch `pointerdown` events), or watch `?bot` play. Make sure start, lose, end card, play again and the share download all work, by tap and by keyboard.
+
+The social image should show a good moment mid-game with the HUD visible and no overlay. If the automatic one is dull, adjust the timing or run with `--og` again.
 
 ## 5. Make the thumbnail
 
@@ -93,7 +102,9 @@ The card on the home page shows one stick figure doing the game's action, in the
 pnpm game:thumb <slug> "A stick figure <doing the game's action with its one prop>"
 ```
 
-It calls the OpenAI image API with the house style reference, cuts out the background and saves `public/thumbs/<slug>.webp`. It needs `OPENAI_API_KEY` in the environment and costs a few cents; ask before running it if you're not sure they're fine with that. Look at the result next to two existing thumbnails. If it doesn't match (wrong style, extra scenery, text), run it again with a clearer scene.
+It calls the OpenAI image API with the house style reference, cuts out the background and saves `public/thumbs/<slug>.webp`. It needs `OPENAI_API_KEY` in the environment and costs a few cents per attempt; ask before running it if you're not sure they're fine with that.
+
+Describe a scene that's wider than it is tall (figure and prop side by side). A tall, narrow result looks small on its card, and the script warns when that happens. Every attempt is kept in `tmp/thumbs/<slug>-<n>.webp`; the newest goes on the card, and `pnpm game:thumb <slug> --use <n>` puts an earlier one back. Compare it with two existing thumbnails and retry if it doesn't match (wrong style, extra scenery, text).
 
 If there's no API key, skip this step and say so in the pull request. A maintainer will draw it.
 
@@ -112,7 +123,7 @@ Add an entry at the top of the array in `app/lib/games.ts`:
 },
 ```
 
-`controls` is one word (`tap`, `hold`, `swipe`, `aim`, `arrows`, `draw`). Add `needs: 'webcam'` if it needs a camera. `addedAt` is today; the newest games get the "New" badge.
+`controls` is one word: `tap`, `hold`, `swipe`, `aim`, `steer`, `arrows`, `draw` or `body`. Add `needs: 'webcam'` if it needs a camera. `addedAt` is today. Only the games with the newest `addedAt` get the "New" badge, so adding one moves the badge to it; that's expected.
 
 Run `pnpm typecheck` and `pnpm build`, then open `http://localhost:5173/<slug>` and `http://localhost:5173/` to see it inside the site.
 
@@ -132,9 +143,10 @@ Then get it onto their fork and open the pull request. Use the GitHub CLI if it'
 **With `gh`:**
 
 ```bash
-gh repo fork --remote          # only if origin still points at nilbuild/goofyfish; makes the fork origin
+gh api user -q .login          # their username
+gh repo fork --remote          # only if origin isn't already their fork; makes the fork origin
 git push -u origin game/<slug>
-gh pr create --repo nilbuild/goofyfish --base main --head <their-username>:game/<slug> --title "Add <Game Name>" --body-file <file>
+gh pr create --repo nilbuild/goofyfish --base main --head <username>:game/<slug> --title "Add <Game Name>" --body-file <file>
 ```
 
 **Without `gh`:** guide them one step at a time and wait for each:

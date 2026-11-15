@@ -34,10 +34,10 @@ The `make-goofyfish-game` skill in `.claude/skills/` pitches ideas, builds the g
 
 Helpers the skill uses, also handy by hand:
 
-- `pnpm game:check <slug>`: with `pnpm dev` running, loads the game at phone and laptop sizes, fails on console errors, saves screenshots to `tmp/check/` and writes `public/og/<slug>.jpg`.
-- `pnpm game:thumb <slug> "<scene>"`: generates the stick-figure thumbnail with the OpenAI image API (`OPENAI_API_KEY`), cuts it out and saves `public/thumbs/<slug>.webp`.
+- `pnpm game:check <slug> [--og]`: with `pnpm dev` running, loads the game at phone and laptop sizes, fails on console errors and saves screenshots to `tmp/check/`. If the game has a `?bot` mode it times three bot runs and grabs the social image mid-run. It only writes `public/og/<slug>.jpg` when it's missing, or with `--og`.
+- `pnpm game:thumb <slug> "<scene>"`: generates the stick-figure thumbnail with the OpenAI image API (`OPENAI_API_KEY`), cuts it out and saves `public/thumbs/<slug>.webp`. Attempts are kept in `tmp/thumbs/`; `--use <n>` puts an earlier one back.
 
-By hand: copy `.claude/skills/make-goofyfish-game/template.html` to `public/games/<slug>.html`, follow `references/style-guide.md` next to it, run the two helpers and add an entry to `app/lib/games.ts`.
+By hand: copy `.claude/skills/make-goofyfish-game/template.html` to `public/games/<slug>.html`, follow `references/style-guide.md` and reuse `references/snippets.js` next to it, run the two helpers and add an entry to `app/lib/games.ts`.
 
 ## Deploying
 
