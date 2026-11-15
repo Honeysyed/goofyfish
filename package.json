@@ -3,12 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "react-router build",
+    "build": "react-router build && cp build/client/404/index.html build/client/404.html",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "preview": "pnpm dlx sirv-cli build/client --port 4173"
   },
   "dependencies": {
+    "isbot": "^5",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router": "^8.5.1"

@@ -1,7 +1,7 @@
-import type { Config } from "@react-router/dev/config";
+import type { Config } from '@react-router/dev/config';
+import { games } from './app/lib/games';
 
 export default {
-  // Config options...
-  // Server-side render by default, to enable SPA mode set this to `false`
-  ssr: true,
+  ssr: false,
+  prerender: ['/', '/404', '/sitemap.xml', ...games.map((g) => `/${g.slug}`)],
 } satisfies Config;
