@@ -88,6 +88,14 @@ pnpm game:check <slug>
 
 It starts the dev server in the background if one isn't running (`pnpm astro dev status` shows its URL, `pnpm astro dev stop` stops it), loads the game at phone and laptop sizes, presses Play, fails on any console error and saves screenshots to `tmp/check/`. With a `?bot` mode it also plays three bot runs and prints how long each lasted, and if `public/og/<slug>.jpg` doesn't exist yet it takes the social image 7 seconds into a bot run. Pass `--og` to retake that image; otherwise it's left alone.
 
+Then check the stick figures' motion:
+
+```bash
+pnpm game:motion <slug>
+```
+
+It plays a bot run and checks every figure, every frame: elbows or knees bent the wrong way, a broken-wing arm (upper arm swung back, forearm folded forward to a low hand) and joints that snap between frames. Fix poses until it prints "motion is clean".
+
 Look at every screenshot. Aim for bot runs of at least 20 seconds (a first-timer should get that far) and well under 3 minutes (the difficulty has to ramp). Tune, then run the check again.
 
 Driving the game through browser-tool clicks is too slow to react in real time. To try specific situations, run code inside the page (call the game's own functions, or dispatch `pointerdown` events), or watch `?bot` play. Make sure start, lose, end card, play again and the share download all work, by tap and by keyboard.

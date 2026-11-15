@@ -28,6 +28,14 @@ Use one accent per moment. If everything is yellow, nothing is.
 - Pose with keyframes and blend between them: use `P`, `mk()`, `Actor` and `drawFigure()` from `snippets.js` rather than drawing your own. Small idle breathing and a crouch on landing make it feel alive.
 - Enemies ("goons") are round blobs with googly eyes, or grey stick figures.
 
+### Anatomy
+
+- Elbows and knees only bend the way real ones do: a forearm folds toward the front of the body, a knee bends forward. `drawFigure` enforces it, so a pose's `eF`/`eB`/`kF`/`kB` hint only matters when the limb is almost straight. Don't try to fake a backwards bend.
+- A back hand resting low under the shoulder hangs from a nearly straight arm (the rig does this). If the back hand has to work there (holding a bucket at the hip, steadying a box), or swings through a run or pump cycle (the relax would make it lurch as it passes under the shoulder), add `hang: 0` to those poses.
+- Keep the back arm by the side or in front. Parked behind the back with the forearm folded forward to the hip, it reads as a broken wing side-on. A startle brings both hands up in front, not one flung out behind the head.
+- Big moves (a slam, a cheer) need a few frames. Snapping a hand somewhere in one or two frames reads as a glitch.
+- Run `pnpm game:motion <slug>` to catch all of this.
+
 ## World drawing
 
 - Ground: a 2px ink line with a slight wobble (precomputed `WOBBLE` table), never a filled floor.
