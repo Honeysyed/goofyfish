@@ -181,6 +181,7 @@ Write the body to a temp file first:
 ![screenshot](<raw.githubusercontent.com link to public/og/<slug>.jpg on the fork's branch>)
 
 - [x] `pnpm game:check` passes (no console errors, phone and laptop)
+- [x] `pnpm game:motion` is clean (pass `--bot <kind>` if the game's bot needs a value)
 - [x] Played a full run on touch and keyboard
 - [x] `pnpm build` passes
 - [ ] or [x] Thumbnail generated with `pnpm game:thumb`
