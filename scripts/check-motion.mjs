@@ -62,7 +62,7 @@ await page.goto(pathToFileURL(file).href + (botKind ? '?bot=' + encodeURICompone
 await page.waitForTimeout(1200);
 const play = await page.$('button');
 if (play) {
-  await play.click().catch(() => {});
+  await play.click({ timeout: 1500 }).catch(() => {});
 }
 await page.waitForTimeout(secs * 1000);
 const frames = await page.evaluate(() => window.__frames);
