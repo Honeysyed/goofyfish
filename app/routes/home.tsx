@@ -54,6 +54,27 @@ function GameCard(props: { game: Game }) {
   );
 }
 
+function MakeCard() {
+  return (
+    <Link
+      to='/make'
+      className='group flex flex-col rounded-2xl border-2 border-dashed border-neutral-200 p-2 transition duration-300 hover:-translate-y-1 hover:border-amber-ink/40 hover:bg-butter-soft/40'
+    >
+      <div className='flex aspect-[4/3] items-center justify-center'>
+        <span className='grid size-14 place-items-center rounded-full bg-butter text-umber shadow-[0_0_0_1px_rgba(180,83,9,.2),0_2px_8px_rgba(0,0,0,.04)] transition-transform duration-300 group-hover:scale-110 group-hover:rotate-90 sm:size-16'>
+          <svg viewBox='0 0 24 24' className='size-7' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round'>
+            <path d='M12 5v14M5 12h14' />
+          </svg>
+        </span>
+      </div>
+      <div className='px-2 pt-3 pb-2'>
+        <h2 className='font-display text-[17px] leading-tight sm:text-[18px]'>Make your own</h2>
+        <p className='mt-1 text-[13px] leading-snug text-neutral-500'>Build a game with Claude Code and send it in</p>
+      </div>
+    </Link>
+  );
+}
+
 export default function Home() {
   return (
     <main className='mx-auto max-w-[1120px] px-4 pb-20 sm:px-8'>
@@ -92,6 +113,7 @@ export default function Home() {
         {games.map((game) => (
           <GameCard key={game.slug} game={game} />
         ))}
+        <MakeCard />
       </section>
 
       <footer className='mt-20 flex flex-col items-center gap-1 text-center text-[13.5px] text-neutral-400'>

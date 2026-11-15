@@ -3,7 +3,7 @@
 # goofyfish
 
 [![Website](https://img.shields.io/badge/website-goofyfish.com-fde68a)](https://goofyfish.com)
-[![Games](https://img.shields.io/badge/games-13-b45309)](https://goofyfish.com)
+[![Games](https://img.shields.io/badge/games-11-b45309)](https://goofyfish.com)
 [![Made with Claude Code](https://img.shields.io/badge/made_with-Claude_Code-d97757)](https://claude.com/claude-code)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 

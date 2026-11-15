@@ -6,6 +6,7 @@ export type Game = {
   addedAt: string;
   controls: string;
   needs?: string;
+  hidden?: boolean;
 };
 
 export const SITE = {
@@ -27,6 +28,7 @@ const allGames: Game[] = [
       "Tap where to hop and bop the balloon back up before it touches the floor. More balloons join in and every bop counts for each one in the air. Gusts blow through the window, and a goon throws darts that you can block by jumping in the way.",
     addedAt: '2026-11-15',
     controls: 'tap',
+    hidden: true,
   },
   {
     slug: 'stomping',
@@ -128,25 +130,18 @@ const allGames: Game[] = [
     addedAt: '2026-11-10',
     controls: 'hold',
   },
-  {
-    slug: 'boxline',
-    name: 'Boxline',
-    tagline: 'A 20-level line-drawing puzzle',
-    description:
-      'Draw a line, dodge the red boxes one beat at a time, and slide into the slot. A 20-level puzzle.',
-    addedAt: '2026-09-27',
-    controls: 'draw',
-  },
 ];
 
-export const games = [...allGames].sort((a, b) => b.addedAt.localeCompare(a.addedAt));
+const sorted = [...allGames].sort((a, b) => b.addedAt.localeCompare(a.addedAt));
+
+export const games = sorted.filter((g) => !g.hidden);
 
 export function findGame(slug: string | undefined) {
   if (!slug) {
     return undefined;
   }
 
-  return games.find((g) => g.slug === slug);
+  return sorted.find((g) => g.slug === slug);
 }
 
 export function isNew(game: Game) {
