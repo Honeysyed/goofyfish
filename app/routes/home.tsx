@@ -37,7 +37,7 @@ function GameCard(props: { game: Game }) {
           src={`/thumbs/${game.slug}.webp`}
           alt=''
           loading='lazy'
-          className='size-[72%] object-contain transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-[1.06]'
+          className='h-[78%] w-[84%] object-contain transition-transform duration-300 group-hover:scale-[1.05]'
         />
         {isNew(game) && (
           <span className='absolute top-2 right-2 rounded-md bg-butter px-1.5 py-0.5 font-mono text-[10.5px] uppercase tracking-wide text-umber shadow-[0_0_0_1px_rgba(180,83,9,.18)]'>
