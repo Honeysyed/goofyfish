@@ -28,7 +28,6 @@ const allGames: Game[] = [
       "Tap where to hop and bop the balloon back up before it touches the floor. More balloons join in and every bop counts for each one in the air. Gusts blow through the window, and a goon throws darts that you can block by jumping in the way.",
     addedAt: '2026-11-15',
     controls: 'tap',
-    hidden: true,
   },
   {
     slug: 'stomping',
@@ -129,6 +128,15 @@ const allGames: Game[] = [
       'A little basketball game. Ten balls, one round: hold to power up, release to shoot. A swish is worth three, and three in a row doubles it.',
     addedAt: '2026-11-10',
     controls: 'hold',
+  },
+  {
+    slug: 'boxline',
+    name: 'Boxline',
+    tagline: 'A 20-level line-drawing puzzle',
+    description:
+      'Draw a line, dodge the red boxes one beat at a time, and slide into the slot. A 20-level puzzle.',
+    addedAt: '2026-09-27',
+    controls: 'draw',
   },
 ];
 
