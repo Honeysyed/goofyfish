@@ -20,22 +20,22 @@ pnpm preview   # serve build/client on :4173
 
 ## Adding a game
 
-Install the goofyfish skill in [Claude Code](https://claude.com/claude-code):
+Get the goofyfish skill for [Claude Code](https://claude.com/claude-code) (or download `skill.zip` from [goofyfish.com/make](https://goofyfish.com/make)):
 
 ```
-/plugin install goofyfish --marketplace nilbuild/goofyfish
+mkdir -p ~/.claude/skills && curl -fsSL https://goofyfish.com/skill.tar.gz | tar -xz -C ~/.claude/skills
 ```
 
 Then, from any folder, ask for a game (`claude "make a goofyfish game where you keep a balloon in the air"`). The `make-goofyfish-game` skill forks and clones this repo, pitches ideas, builds the game from its starter template in the house style, checks it at phone and laptop sizes, makes the social image and the card thumbnail, registers it and opens a pull request. The same steps are on [goofyfish.com/make](https://goofyfish.com/make).
 
-If you've already cloned the repo, the skill is there too (`.claude/skills/` links to `plugin/skills/`).
+The skill lives in `.claude/skills/make-goofyfish-game/`, so it's also there when you clone the repo. `pnpm build` packs that folder into `skill.zip` and `skill.tar.gz` for the site. Once the skill has cloned the repo it follows the repo's copy, so old downloads still get the latest instructions.
 
 Helpers the skill uses, also handy by hand:
 
 - `pnpm game:check <slug>`: with `pnpm dev` running, loads the game at phone and laptop sizes, fails on console errors, saves screenshots to `tmp/check/` and writes `public/og/<slug>.jpg`.
 - `pnpm game:thumb <slug> "<scene>"`: generates the stick-figure thumbnail with the OpenAI image API (`OPENAI_API_KEY`), cuts it out and saves `public/thumbs/<slug>.webp`.
 
-By hand: copy `plugin/skills/make-goofyfish-game/template.html` to `public/games/<slug>.html`, follow `references/style-guide.md` next to it, run the two helpers and add an entry to `app/lib/games.ts`.
+By hand: copy `.claude/skills/make-goofyfish-game/template.html` to `public/games/<slug>.html`, follow `references/style-guide.md` next to it, run the two helpers and add an entry to `app/lib/games.ts`.
 
 ## Deploying
 

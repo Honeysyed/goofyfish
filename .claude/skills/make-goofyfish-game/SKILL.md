@@ -9,11 +9,6 @@ goofyfish.com is a collection of small, silly games that run in the browser. Eve
 
 This skill takes someone from an idea to an open pull request. Work through the steps in order and keep the person posted in a line or two as you go.
 
-Files that ship with this skill:
-
-- `${CLAUDE_SKILL_DIR}/template.html`: a small working game ("Keep Hopping") with all the house chrome. Start every game from it.
-- `${CLAUDE_SKILL_DIR}/references/style-guide.md`: palette, stick-figure proportions, line weights, UI and feel rules. Read it before drawing anything.
-
 ## 1. Get the repo
 
 Check whether the current folder is the goofyfish repo: it has `app/lib/games.ts` and `public/games/`. If it is, run `pnpm install` if `node_modules` is missing and move on.
@@ -28,9 +23,14 @@ If it isn't:
    pnpm install
    pnpm exec playwright install chromium
    ```
-   If a `goofyfish` folder already exists, use it: `cd goofyfish && git checkout main && git pull upstream main`.
+   If a `goofyfish` folder already exists, use it: `cd goofyfish && git checkout main && git pull upstream main && pnpm install`.
 
 Do all later work inside that folder.
+
+**Use the repo's copy of this skill from here on.** The copy that was installed or downloaded may be older. Read `.claude/skills/make-goofyfish-game/SKILL.md` inside the repo and follow it from step 2. The template and style guide live next to it:
+
+- `.claude/skills/make-goofyfish-game/template.html`: a small working game ("Keep Hopping") with all the house chrome. Start every game from it.
+- `.claude/skills/make-goofyfish-game/references/style-guide.md`: palette, stick-figure proportions, line weights, UI and feel rules. Read it before drawing anything.
 
 ## 2. Pitch before building
 
@@ -49,7 +49,7 @@ Once they pick, create the branch: `git checkout -b game/<slug>`.
 
 ## 3. Build it
 
-Copy `${CLAUDE_SKILL_DIR}/template.html` to `public/games/<slug>.html` and replace "Keep Hopping" with the new game. Keep the structure:
+Copy `.claude/skills/make-goofyfish-game/template.html` to `public/games/<slug>.html` and replace "Keep Hopping" with the new game. Keep the structure:
 
 - `<canvas id="c">` fills the screen; the whole game world is drawn on it.
 - `.back` link top-right (`href="/" target="_top"`), the HUD panel top-left, the hint pill at the bottom, the overlay with a start card (`#playBtn`) and an end card (`#againBtn`, `#shareBtn`), and a toast.
