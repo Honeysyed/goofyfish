@@ -1,7 +1,6 @@
 import { Link, useNavigate } from 'react-router';
 import type { Route } from './+types/home';
 import { Fish } from '~/components/fish';
-import { GameArt } from '~/components/game-art';
 import { games, isNew, SITE, type Game } from '~/lib/games';
 import { seo } from '~/lib/seo';
 
@@ -33,10 +32,12 @@ function GameCard(props: { game: Game }) {
       prefetch='intent'
       className='group relative flex flex-col rounded-2xl bg-white p-2 shadow-[0_0_0_1px_rgba(0,0,0,.06),0_2px_8px_rgba(0,0,0,.04)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_0_0_1px_rgba(0,0,0,.08),0_16px_32px_-16px_rgba(0,0,0,.25)]'
     >
-      <div className='relative overflow-hidden rounded-xl bg-[#fafaf9] transition-colors duration-300 group-hover:bg-butter-soft/60'>
-        <GameArt
-          slug={game.slug}
-          className='aspect-[4/3] w-full transition-transform duration-300 group-hover:-rotate-1 group-hover:scale-[1.03]'
+      <div className='relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-white'>
+        <img
+          src={`/thumbs/${game.slug}.webp`}
+          alt=''
+          loading='lazy'
+          className='size-[72%] object-contain transition-transform duration-300 group-hover:-rotate-3 group-hover:scale-[1.06]'
         />
         {isNew(game) && (
           <span className='absolute top-2 right-2 rounded-md bg-butter px-1.5 py-0.5 font-mono text-[10.5px] uppercase tracking-wide text-umber shadow-[0_0_0_1px_rgba(180,83,9,.18)]'>
