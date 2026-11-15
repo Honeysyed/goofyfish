@@ -20,6 +20,15 @@ export const SITE = {
 
 const allGames: Game[] = [
   {
+    slug: 'bopping',
+    name: 'Keep Bopping',
+    tagline: "Bop the balloon, don't let it touch the floor",
+    description:
+      "Tap where to hop and bop the balloon back up before it touches the floor. More balloons join in and every bop counts for each one in the air. Gusts blow through the window, and a goon throws darts that you can block by jumping in the way.",
+    addedAt: '2026-11-15',
+    controls: 'tap',
+  },
+  {
     slug: 'stomping',
     name: 'Keep Stomping',
     tagline: 'The floor is spikes, stay up on their heads',
