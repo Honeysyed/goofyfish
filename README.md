@@ -18,7 +18,31 @@ pnpm preview   # serve build/client on :4173
 - Each card's thumbnail is `public/thumbs/<slug>.webp`: a generated stick-figure scene in the games' ink style, background cut out. `public/og/<slug>.jpg` (1200×630) is the social image.
 - Set `VITE_GA_ID` at build time to turn on Google Analytics.
 
+```
+app/
+  lib/games.ts          game registry + site info
+  routes/               home, /make, /:slug (game page), sitemap.xml
+public/
+  games/<slug>.html     the games
+  thumbs/<slug>.webp    card art
+  og/<slug>.jpg         social images
+scripts/                game:check, game:thumb, skill packer
+.claude/skills/make-goofyfish-game/
+  SKILL.md              how Claude builds and submits a game
+  template.html         starter game
+  references/           style guide + reusable snippets
+```
+
+Most games understand a few query params: `?autoplay` starts a run, `?bot` plays itself (no saving), `?still` freezes the frame.
+
 ## Adding a game
+
+What makes a goofyfish game:
+
+- One input: tap, hold, swipe, or aim and let go.
+- A stick figure doing one physical thing.
+- Playing in 3 seconds, a run lasts under 3 minutes.
+- Fun for a 6-year-old and a 40-year-old.
 
 Clone the repo and ask [Claude Code](https://claude.com/claude-code) for a game:
 
