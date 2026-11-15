@@ -559,6 +559,7 @@ function startGame() {
   me.queue = null;
   balloons = [makeBalloon(W * 0.5 + (W > 500 ? 80 : 56), Math.max(topY * 0.78, -520), 0)];
   balloons[0].vy = 0;
+  balloons[0].grace = 2.5;
   goon = null;
   darts = [];
   wind.f = 0;
@@ -1883,7 +1884,17 @@ function drawPopups() {
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
     const sc = (1 + 0.25 * Math.max(0, 1 - k * 5)) * p.size;
-    ctx.translate(p.x, y);
+    ctx.font = "400 22px 'Balsamiq Sans', system-ui, sans-serif";
+    let half = ctx.measureText(p.text).width / 2;
+    if (p.sub) {
+      ctx.font = "400 10px 'Balsamiq Sans', system-ui, sans-serif";
+      ctx.letterSpacing = '1.5px';
+      half = Math.max(half, ctx.measureText(p.sub).width / 2);
+      ctx.letterSpacing = '0px';
+    }
+    half = half * sc + 10;
+    const px = rightX - leftX > half * 2 ? clamp(p.x, leftX + half, rightX - half) : (leftX + rightX) / 2;
+    ctx.translate(px, y);
     ctx.scale(sc, sc);
     ctx.fillStyle = p.hot ? COL.accent : COL.ink;
     ctx.font = "400 22px 'Balsamiq Sans', system-ui, sans-serif";
