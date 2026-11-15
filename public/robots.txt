@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://goofyfish.com/sitemap.xml

@@ -1,87 +1,30 @@
-# Welcome to React Router!
+# goofyfish
 
-A modern, production-ready template for building full-stack React applications using React Router.
+Small, silly games for the browser. Live at [goofyfish.com](https://goofyfish.com).
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
-
-## Features
-
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
-
-## Getting Started
-
-### Installation
-
-Install the dependencies:
+Static site built with React Router (framework mode, `ssr: false` + prerender) and Tailwind v4.
 
 ```bash
-npm install
+pnpm install
+pnpm dev       # http://localhost:5173
+pnpm build     # static output in build/client
+pnpm preview   # serve build/client on :4173
 ```
 
-### Development
+## How it's put together
 
-Start the development server with HMR:
+- `app/lib/games.ts` is the registry. Every entry gets a prerendered page at `/<slug>`, a card on the home page and a sitemap entry.
+- Each game is a single self-contained HTML file in `public/games/<slug>.html`. The `/<slug>` route renders the SEO meta and loads the game in a full-screen iframe.
+- `public/cards/<slug>.jpg` (720×378) is the home page card, `public/og/<slug>.jpg` (1200×630) the social image.
+- Set `VITE_GA_ID` at build time to turn on Google Analytics.
 
-```bash
-npm run dev
-```
+## Adding a game
 
-Your application will be available at `http://localhost:5173`.
+1. Drop the game in `public/games/<slug>.html`. Keep it self-contained, link back with `<a class="back" href="/" target="_top">← all games</a>`.
+2. Add `public/og/<slug>.jpg` (1200×630) and `public/cards/<slug>.jpg`:
+   `sips -s format jpeg -s formatOptions 72 --resampleWidth 720 public/og/<slug>.jpg --out public/cards/<slug>.jpg`
+3. Add an entry to `app/lib/games.ts` with today's date as `addedAt`. The newest date gets the "New" badge.
 
-## Building for Production
+## Deploying
 
-Create a production build:
-
-```bash
-npm run build
-```
-
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
-
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+`build/client` is plain static files. Any static host works. Unknown paths should serve `404.html`.

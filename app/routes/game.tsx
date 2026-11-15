@@ -70,7 +70,6 @@ export default function GamePage(props: Route.ComponentProps) {
         src={`/games/${game.slug}.html${search}`}
         title={game.name}
         allow='camera; microphone; fullscreen; autoplay; web-share; clipboard-write'
-        allowFullScreen
         className='block h-dvh w-full border-0'
       />
     </main>
