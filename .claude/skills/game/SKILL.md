@@ -1,5 +1,5 @@
 ---
-name: make-goofyfish-game
+name: game
 description: Make a new small browser game for goofyfish.com in the house style (stick figures, ink on dotted paper, butter-yellow accents, one simple input), generate its thumbnail and social image, and submit it as a pull request to nilbuild/goofyfish. Use when someone wants to make, build, design or submit a goofyfish game.
 ---
 
@@ -29,10 +29,10 @@ Either way, run `pnpm exec playwright install chromium` once so `pnpm game:check
 
 Do all later work inside that folder.
 
-**Use the repo's copy of this skill from here on.** The copy that was installed or downloaded may be older. Read `.claude/skills/make-goofyfish-game/SKILL.md` inside the repo and follow it from step 2. The template and style guide live next to it:
+**Use the repo's copy of this skill from here on.** The copy that was installed or downloaded may be older. Read `.claude/skills/game/SKILL.md` inside the repo and follow it from step 2. The template and style guide live next to it:
 
-- `.claude/skills/make-goofyfish-game/template.html`: a small working game ("Keep Hopping") with all the house chrome. Start every game from it.
-- `.claude/skills/make-goofyfish-game/references/style-guide.md`: palette, stick-figure proportions, line weights, UI and feel rules. Read it before drawing anything.
+- `.claude/skills/game/template.html`: a small working game ("Keep Hopping") with all the house chrome. Start every game from it.
+- `.claude/skills/game/references/style-guide.md`: palette, stick-figure proportions, line weights, UI and feel rules. Read it before drawing anything.
 
 ## 2. Pitch before building
 
@@ -51,7 +51,7 @@ Once they pick, create the branch: `git checkout -b game/<slug>`.
 
 ## 3. Build it
 
-Copy `.claude/skills/make-goofyfish-game/template.html` to `public/games/<slug>.html` and replace "Keep Hopping" with the new game. The template is a complete small game built from the same pieces as the existing games, so keep its structure and swap out the gameplay:
+Copy `.claude/skills/game/template.html` to `public/games/<slug>.html` and replace "Keep Hopping" with the new game. The template is a complete small game built from the same pieces as the existing games, so keep its structure and swap out the gameplay:
 
 - `<canvas id="c">` fills the screen; the whole game world is drawn on it, in world units fitted to the screen by `fitView()`.
 - `.back` link top-right (`href="/" target="_top"`), the HUD panel top-left, the hint pill at the bottom, the overlay with a start card (`#playBtn`) and an end card (`#againBtn`, `#shareBtn`), and a toast.
@@ -60,7 +60,7 @@ Copy `.claude/skills/make-goofyfish-game/template.html` to `public/games/<slug>.
 - `pointerdown` on the canvas plus `Space`/`Enter` on the keyboard. `Space` also starts and restarts from the cards.
 - The end card's download button renders a 1080×1350 share image (`shareCanvas`), with the stick figure drawn on it.
 
-**Reuse the shared pieces.** `.claude/skills/make-goofyfish-game/references/snippets.js` has everything the template uses, documented: the posed stick figure (`P` poses, `mk()` to make new ones, `Actor` to animate between them, `drawFigure()` with flip and grey "goon" colours), wobbly ground, ink shapes, popups that stay on screen, particles, screen shake, the sound engine and `fitView()`. Don't draw your own stick figure. For more patterns (chains, wind, cameras that follow the action, richer share images) read an existing game such as `public/games/stacks.html` or `public/games/bopping.html`.
+**Reuse the shared pieces.** `.claude/skills/game/references/snippets.js` has everything the template uses, documented: the posed stick figure (`P` poses, `mk()` to make new ones, `Actor` to animate between them, `drawFigure()` with flip and grey "goon" colours), wobbly ground, ink shapes, popups that stay on screen, particles, screen shake, the sound engine and `fitView()`. Don't draw your own stick figure. For more patterns (chains, wind, cameras that follow the action, richer share images) read an existing game such as `public/games/stacks.html` or `public/games/bopping.html`.
 
 **Design for both screens from the start.** Pick a world size in `VIEW` that suits a laptop. On portrait phones `fitView()` shows at least `VIEW.minW` world units centred on `VIEW.focusX`, so set those so the action stays big and visible; things outside that slice should scroll, roll or fly into view rather than sit off-screen.
 

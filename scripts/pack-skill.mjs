@@ -2,7 +2,7 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { join, relative } from 'node:path';
 import { deflateRawSync, gzipSync } from 'node:zlib';
 
-const NAME = 'make-goofyfish-game';
+const NAME = 'game';
 const SRC = join('.claude', 'skills', NAME);
 const out = process.argv[2] ?? 'build/client';
 
