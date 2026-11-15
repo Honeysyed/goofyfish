@@ -25,6 +25,13 @@
   --color-butter-soft: #fef3c7;
   --color-umber: #78350f;
   --color-amber-ink: #b45309;
+
+  --animate-bob: bob 3.2s ease-in-out infinite;
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0) rotate(-4deg); }
+    50% { transform: translateY(-6px) rotate(4deg); }
+  }
 }
 
 html {
@@ -38,4 +45,18 @@ body {
   background-image: radial-gradient(circle, rgba(31, 41, 55, 0.13) 0.8px, transparent 1px);
   background-size: 24px 24px;
   background-position: 12px 12px;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .animate-bob {
+    animation: none;
+  }
 }
