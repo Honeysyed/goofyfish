@@ -30,6 +30,15 @@ const allGames: Game[] = [
     controls: 'tap',
   },
   {
+    slug: 'rolling',
+    name: 'Keep Rolling',
+    tagline: 'Roll up the universe, outrun the avalanche',
+    description:
+      'Start in the garden and roll up daisies, chickens, people, buses, whole towns and the wonders of the world. Jump whatever is bigger than you and stay ahead of the avalanche. 15 worlds, 32 real landmarks, power-ups, then the Big Bang starts a harder lap.',
+    addedAt: '2026-11-14',
+    controls: 'tap',
+  },
+  {
     slug: 'stomping',
     name: 'Keep Stomping',
     tagline: 'The floor is spikes, stay up on their heads',
