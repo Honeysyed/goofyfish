@@ -2071,10 +2071,10 @@ const BASE = {
 const mk = (o, base = BASE) => Object.assign({}, base, o);
 const P_ = {};
 P_.stand = mk({ head: [1, -121], fF: [4, -8], fB: [-5, -8], hF: [7, -55], hB: [-5, -55] });
-P_.crouch = mk({ head: [8, -100], chest: [4, -76], hip: [-3, -48], kF: [18, -28], kB: [10, -27], fF: [6, -8], fB: [-6, -8], hF: [20, -50], hB: [-4, -50] });
+P_.crouch = mk({ head: [8, -100], chest: [4, -76], hip: [-3, -48], kF: [18, -28], kB: [10, -27], fF: [6, -8], fB: [-6, -8], hF: [20, -50], hB: [6, -38] });
 P_.rise = mk({ head: [4, -124], chest: [2, -99], hip: [0, -68], fF: [12, -28], kF: [22, -50], fB: [-8, -16], kB: [3, -42], hF: [24, -136], hB: [-26, -76] });
 P_.fall = mk({ head: [2, -121], chest: [1, -96], hip: [0, -65], fF: [9, -9], kF: [18, -38], fB: [-10, -14], kB: [-2, -40], hF: [34, -121], hB: [-33, -119] });
-P_.push = mk({ head: [13, -115], chest: [6, -92], hip: [-4, -63], fF: [7, -8], kF: [18, -36], fB: [-24, -8], kB: [-9, -36], hF: [31, -97], hB: [29, -90] });
+P_.push = mk({ head: [13, -115], chest: [6, -92], hip: [-4, -63], fF: [7, -8], kF: [18, -36], fB: [-24, -8], kB: [-9, -36], hF: [31, -97], hB: [29, -90], hang: 0 });
 P_.cheer = mk({ head: [0, -123], chest: [0, -97], hip: [0, -67], fF: [6, -8], fB: [-7, -8], kF: [10, -38], kB: [-2, -38], hF: [16, -136], hB: [-12, -134] });
 P_.cheer2 = mk({ head: [0, -126], chest: [0, -100], hip: [0, -70], fF: [5, -12], fB: [-6, -12], kF: [10, -42], kB: [-2, -42], hF: [20, -140], hB: [-16, -138] });
 P_.wave = mk({ head: [1, -122], hF: [20, -134], hB: [-6, -58] });
@@ -2092,7 +2092,7 @@ function swingHand(ha, ca, hb, cb, c, k) {
   return [c[0] + Math.cos(ang) * len, c[1] + Math.sin(ang) * len];
 }
 function lerpPose(a, b, k) {
-  const o = {};
+  const o = { hang: lerp(a.hang ?? 1, b.hang ?? 1, k) };
   for (const n of PTS) {
     o[n] = lerp2(a[n], b[n], k);
   }
@@ -2113,14 +2113,14 @@ function runPose(ph, k) {
   const head = [lean * 1.7, hipY - 56];
   const hip = [0, hipY];
   const fF = foot(a), fB = foot(a + Math.PI);
-  const sh = [chest[0], chest[1] - 1];
-  const front = [sh[0] + 8 + 12 * k, sh[1] + 30 - 16 * k];
-  const back = [sh[0] - 8 - 12 * k, sh[1] + 39 - 3 * k];
+  // Arms swing from the shoulder: straight while the hand is low (so a relaxed hang never kicks in mid-swing),
+  // folding at the elbow only as the hand comes up in front.
+  const sh = [chest[0], chest[1] + 1];
+  const back = -0.15 - 0.4 * k, front = 0.15 + 0.95 * k, fold = 0.66;
   const arm = (w) => {
-    const e = 0.5 + 0.5 * w;
-    const mid = [(front[0] + back[0]) / 2 - 2, (front[1] + back[1]) / 2 + 26];
-    const u = e;
-    return [(1 - u) * (1 - u) * back[0] + 2 * (1 - u) * u * mid[0] + u * u * front[0], (1 - u) * (1 - u) * back[1] + 2 * (1 - u) * u * mid[1] + u * u * front[1]];
+    const ang = lerp(back, front, 0.5 + 0.5 * w);
+    const r = 41.5 - (ang > fold ? ((ang - fold) / (front - fold)) * 16 : 0);
+    return [sh[0] + Math.sin(ang) * r, sh[1] + Math.cos(ang) * r];
   };
   const th = -Math.cos(a);
   return {
@@ -2130,18 +2130,42 @@ function runPose(ph, k) {
     hF: arm(th), hB: arm(-th),
   };
 }
-function ik(a, b, l1, l2, hint) {
+// Joints only bend the way real ones do, in the figure's facing-right space (y down):
+// an elbow folds the forearm toward the front of the body, a knee folds the shin back.
+const ARM_BEND = -1, KNEE_BEND = 1;
+function ik(a, b, l1, l2, hint, bend) {
   const dx = b[0] - a[0], dy = b[1] - a[1];
   let d = Math.hypot(dx, dy);
   const base = Math.atan2(dy, dx);
-  d = Math.max(Math.abs(l1 - l2) + 0.01, Math.min(l1 + l2 - 0.001, d));
+  const L = l1 + l2, soft = L * 0.96;
+  if (d > soft) {
+    d = soft + (L - soft) * (1 - Math.exp(-(d - soft) / (L - soft)));
+  }
+  d = Math.max(Math.abs(l1 - l2) + 0.01, Math.min(L - 0.001, d));
   const c = Math.max(-1, Math.min(1, (l1 * l1 + d * d - l2 * l2) / (2 * l1 * d)));
   const ang = Math.acos(c);
   const j1 = [a[0] + l1 * Math.cos(base + ang), a[1] + l1 * Math.sin(base + ang)];
   const j2 = [a[0] + l1 * Math.cos(base - ang), a[1] + l1 * Math.sin(base - ang)];
+  if (bend) {
+    const side = (j) => (j[0] - a[0]) * (b[1] - j[1]) - (j[1] - a[1]) * (b[0] - j[0]);
+    return Math.sign(side(j1)) === bend ? j1 : j2;
+  }
   const d1 = Math.hypot(j1[0] - hint[0], j1[1] - hint[1]);
   const d2 = Math.hypot(j2[0] - hint[0], j2[1] - hint[1]);
   return d1 < d2 ? j1 : j2;
+}
+// A back hand resting low under the shoulder hangs from a nearly straight arm; hang: 0 on a pose turns it off.
+function relax(sh, t, amount) {
+  const dx = t[0] - sh[0], dy = t[1] - sh[1];
+  const d = Math.hypot(dx, dy);
+  const want = (UARM + FARM) * 0.96;
+  if (dy <= 0 || d < 1 || d >= want) {
+    return t;
+  }
+  const w = (amount ?? 1) * Math.min(1, Math.max(0, (dy / d - 0.8) / 0.18));
+  const k = w * w * (3 - 2 * w);
+  const nd = d + (want - d) * k;
+  return [sh[0] + (dx / d) * nd, sh[1] + (dy / d) * nd];
 }
 function reach(a, b, max) {
   const dx = b[0] - a[0], dy = b[1] - a[1];
@@ -2171,8 +2195,12 @@ function mirrorJoint(a, b, j) {
   const px = a[0] + dx * t, py = a[1] + dy * t;
   return [2 * px - j[0], 2 * py - j[1]];
 }
-function ikC(key, a, b, l1, l2, hint) {
-  const j = ik(a, b, l1, l2, hint);
+function ikC(key, a, b, l1, l2, hint, bend) {
+  const j = ik(a, b, l1, l2, hint, bend);
+  if (bend) {
+    prevJ[key] = j;
+    return j;
+  }
   const pj = prevJ[key];
   if (pj) {
     const alt = mirrorJoint(a, b, j);
@@ -2218,13 +2246,13 @@ function drawFigure(pose, x, y, o) {
   const u = [sxx / sl, syy / sl];
   const sh = [p.chest[0] - u[0], p.chest[1] - u[1]];
   const key = o.key || 'x';
-  const solve = o.key ? ikC : (k, aa, bb, l1, l2, h) => ik(aa, bb, l1, l2, h);
-  const kF = solve(key + 'kF', p.hip, p.fF, THIGH, SHIN, p.kF);
-  const kB = solve(key + 'kB', p.hip, p.fB, THIGH, SHIN, p.kB);
+  const solve = o.key ? ikC : (k, aa, bb, l1, l2, h, bd) => ik(aa, bb, l1, l2, h, bd);
+  const kF = solve(key + 'kF', p.hip, p.fF, THIGH, SHIN, p.kF, KNEE_BEND);
+  const kB = solve(key + 'kB', p.hip, p.fB, THIGH, SHIN, p.kB, KNEE_BEND);
   const handF = reach(sh, p.hF, UARM + FARM);
-  const handB = reach(sh, p.hB, UARM + FARM);
-  const eF = ik(sh, handF, UARM, FARM, elbowHint(sh, handF));
-  const eB = ik(sh, handB, UARM, FARM, elbowHint(sh, handB));
+  const handB = reach(sh, relax(sh, p.hB, p.hang), UARM + FARM);
+  const eF = ik(sh, handF, UARM, FARM, elbowHint(sh, handF), ARM_BEND);
+  const eB = ik(sh, handB, UARM, FARM, elbowHint(sh, handB), ARM_BEND);
   const hd = [p.head[0] - p.chest[0], p.head[1] - p.chest[1]];
   const hl = Math.hypot(hd[0], hd[1]) || 1;
   const hc = [p.chest[0] + (hd[0] / hl) * 20.5, p.chest[1] + (hd[1] / hl) * 20.5];
@@ -2254,7 +2282,7 @@ function drawFigure(pose, x, y, o) {
 }
 
 function makeAnim() {
-  return { pose: P_.stand, ph: 0, sq: 1, sqv: 0, landT: 9, landK: 0, cheer: false, pop: 0, fade: 1, stepPh: 0 };
+  return { pose: P_.stand, mid: P_.stand, kind: '', sw: 1, from: null, last: null, ph: 0, sq: 1, sqv: 0, landT: 9, landK: 0, cheer: false, pop: 0, fade: 1, stepPh: 0 };
 }
 function animate(A, b, dt, live) {
   let tgt;
@@ -2282,7 +2310,22 @@ function animate(A, b, dt, live) {
   if (A.landT < 0.16 && b.ground) {
     tgt = lerpPose(tgt, P_.crouch, A.landK * (1 - A.landT / 0.16));
   }
-  A.pose = lerpPose(A.pose, tgt, smooth(b.ground ? 24 : 15, dt));
+  // Crossfade from the old target when the body changes state (takes off, lands, starts pushing or cheering).
+  const kind = A.cheer ? 'cheer' : !b.ground ? 'air' : b.push ? 'push' : 'ground';
+  if (A.kind !== kind) {
+    A.from = A.last || tgt;
+    A.kind = kind;
+    A.sw = 0;
+  }
+  if (A.sw < 1) {
+    A.sw = Math.min(1, A.sw + dt / 0.12);
+    tgt = lerpPose(A.from, tgt, EASE.soft(A.sw));
+  }
+  A.last = tgt;
+  // Two chained easings, so a sudden new target (a jump, a landing) starts moving gently instead of snapping.
+  const rate = b.ground ? 30 : 22;
+  A.mid = lerpPose(A.mid, tgt, smooth(rate, dt));
+  A.pose = lerpPose(A.pose, A.mid, smooth(rate, dt));
   A.sqv += ((1 - A.sq) * 330 - A.sqv * 18) * dt;
   A.sq = clamp(A.sq + A.sqv * dt, 0.7, 1.3);
   A.pop = Math.max(0, A.pop - dt * 2.4);

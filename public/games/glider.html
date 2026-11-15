@@ -1411,17 +1411,19 @@ const BASE = {
 const mk = (o, base = BASE) => Object.assign({}, base, o);
 const P = {};
 P.hold = mk({ head: [1, -121], hF: [15, -99], eF: [11, -77], hB: [-3, -57], eB: [-6, -77] });
-P.wind = mk({ head: [-7, -119], chest: [-4, -95], hip: [1, -64], fF: [18, -8], fB: [-12, -8], kF: [17, -37], kB: [-2, -37], hF: [-25, -119], eF: [-18, -98], hB: [14, -84], eB: [6, -76] });
-P.throw = mk({ head: [10, -117], chest: [6, -94], hip: [1, -64], fF: [18, -8], fB: [-12, -8], kF: [20, -37], kB: [-1, -37], hF: [34, -106], eF: [20, -98], hB: [-12, -70], eB: [-8, -84] });
-P.follow = mk({ head: [12, -114], chest: [8, -92], hip: [1, -63], fF: [18, -8], fB: [-12, -8], kF: [21, -36], kB: [0, -36], hF: [38, -82], eF: [24, -92], hB: [-14, -66], eB: [-10, -82] });
+P.windUp = mk({ head: [-2, -121], chest: [-1, -96], hip: [1, -65], fF: [14, -8], fB: [-10, -8], kF: [18, -38], kB: [0, -38], hF: [10, -124], eF: [16, -104], hB: [10, -78], eB: [0, -74] });
+P.wind = mk({ head: [-7, -119], chest: [-4, -95], hip: [1, -64], fF: [18, -8], fB: [-12, -8], kF: [17, -37], kB: [-2, -37], hF: [-16, -124], eF: [4, -116], hB: [14, -84], eB: [6, -76] });
+P.throw = mk({ head: [10, -117], chest: [6, -94], hip: [1, -64], fF: [18, -8], fB: [-12, -8], kF: [20, -37], kB: [-1, -37], hF: [34, -106], eF: [20, -98], hB: [20, -72], eB: [-4, -76], hang: 0 });
+P.follow = mk({ head: [12, -114], chest: [8, -92], hip: [1, -63], fF: [18, -8], fB: [-12, -8], kF: [21, -36], kB: [0, -36], hF: [38, -82], eF: [24, -92], hB: [22, -70], eB: [-4, -76], hang: 0 });
 P.watch = mk({ head: [3, -121], chest: [1, -96], fF: [12, -8], fB: [-8, -8], kF: [18, -38], kB: [4, -38], hF: [10, -122], eF: [19, -104], hB: [-3, -57], eB: [-6, -77] });
-P.cheer = mk({ head: [0, -122], chest: [0, -97], hip: [0, -67], hF: [16, -136], hB: [-12, -134], eF: [14, -118], eB: [-12, -116] });
-P.oops = mk({ head: [-3, -118], chest: [-2, -94], hip: [0, -65], kF: [20, -37], hF: [7, -125], eF: [19, -111], hB: [-7, -125], eB: [-20, -109] });
+P.cheer = mk({ head: [0, -122], chest: [0, -97], hip: [0, -67], hF: [16, -136], hB: [-10, -137], eF: [14, -118], eB: [-6, -117], hang: 0 });
+P.oops = mk({ head: [-3, -118], chest: [-2, -94], hip: [0, -65], kF: [20, -37], hF: [16, -122], eF: [20, -104], hB: [8, -126], eB: [12, -108], hang: 0 });
 P.crouch = mk({ head: [24, -96], chest: [13, -80], hip: [-6, -60], fF: [11, -8], fB: [-9, -8], kF: [11, -34], kB: [-2, -34], hF: [15, -41], hB: [9, -40], eF: [20, -60], eB: [13, -60] });
-P.runA = mk({ head: [9, -119], chest: [6, -95], hip: [0, -65], fF: [24, -8], kF: [18, -38], fB: [-24, -24], kB: [-6, -40], eF: [-12, -82], hF: [-4, -68], eB: [16, -84], hB: [22, -100] });
-P.runB = mk({ head: [9, -119], chest: [6, -95], hip: [0, -65], fB: [24, -8], kB: [18, -38], fF: [-24, -24], kF: [-6, -40], eB: [-12, -82], hB: [-4, -68], eF: [16, -84], hF: [22, -100] });
-P.runP1 = mk({ head: [9, -122], chest: [6, -98], hip: [0, -68], fF: [8, -32], kF: [20, -50], fB: [0, -8], kB: [6, -38], eF: [2, -80], hF: [10, -72], eB: [2, -80], hB: [10, -72] });
-P.runP2 = mk({ head: [9, -122], chest: [6, -98], hip: [0, -68], fB: [8, -32], kB: [20, -50], fF: [0, -8], kF: [6, -38], eF: [2, -80], hF: [10, -72], eB: [2, -80], hB: [10, -72] });
+P.lift = mk({ head: [10, -110], chest: [7, -87], hip: [-3, -60], fF: [11, -8], fB: [-9, -8], kF: [14, -36], kB: [0, -36], hF: [34, -90], eF: [16, -80], hB: [30, -88], eB: [14, -78], hang: 0 });
+P.runA = mk({ head: [9, -119], chest: [6, -95], hip: [0, -65], fF: [24, -8], kF: [18, -38], fB: [-24, -24], kB: [-6, -40], eF: [-12, -82], hF: [-14, -60], eB: [16, -76], hB: [34, -86], hang: 0 });
+P.runB = mk({ head: [9, -119], chest: [6, -95], hip: [0, -65], fB: [24, -8], kB: [18, -38], fF: [-24, -24], kF: [-6, -40], eB: [-12, -82], hB: [-14, -60], eF: [16, -76], hF: [34, -86], hang: 0 });
+P.runP1 = mk({ head: [9, -122], chest: [6, -98], hip: [0, -68], fF: [8, -32], kF: [20, -50], fB: [0, -8], kB: [6, -38], eF: [0, -78], hF: [6, -56], eB: [0, -78], hB: [6, -56], hang: 0 });
+P.runP2 = mk({ head: [9, -122], chest: [6, -98], hip: [0, -68], fB: [8, -32], kB: [20, -50], fF: [0, -8], kF: [6, -38], eF: [0, -78], hF: [6, -56], eB: [0, -78], hB: [6, -56], hang: 0 });
 
 const PTS = ['head', 'chest', 'hip', 'fF', 'fB', 'kF', 'kB', 'hF', 'hB', 'eF', 'eB'];
 const EASE = {
@@ -1431,15 +1433,24 @@ const EASE = {
   lin: (k) => k,
   soft: (k) => 0.5 - Math.cos(Math.PI * k) / 2,
 };
-function ik(a, b, l1, l2, hint) {
+const ARM_BEND = -1, KNEE_BEND = 1;
+function ik(a, b, l1, l2, hint, bend) {
   const dx = b[0] - a[0], dy = b[1] - a[1];
   let d = Math.hypot(dx, dy);
   const base = Math.atan2(dy, dx);
-  d = Math.max(Math.abs(l1 - l2) + 0.01, Math.min(l1 + l2 - 0.001, d));
+  const L = l1 + l2, soft = L * 0.96;
+  if (d > soft) {
+    d = soft + (L - soft) * (1 - Math.exp(-(d - soft) / (L - soft)));
+  }
+  d = Math.max(Math.abs(l1 - l2) + 0.01, Math.min(L - 0.001, d));
   const c = Math.max(-1, Math.min(1, (l1 * l1 + d * d - l2 * l2) / (2 * l1 * d)));
   const ang = Math.acos(c);
   const j1 = [a[0] + l1 * Math.cos(base + ang), a[1] + l1 * Math.sin(base + ang)];
   const j2 = [a[0] + l1 * Math.cos(base - ang), a[1] + l1 * Math.sin(base - ang)];
+  if (bend) {
+    const side = (j) => (j[0] - a[0]) * (b[1] - j[1]) - (j[1] - a[1]) * (b[0] - j[0]);
+    return Math.sign(side(j1)) === bend ? j1 : j2;
+  }
   const d1 = Math.hypot(j1[0] - hint[0], j1[1] - hint[1]);
   const d2 = Math.hypot(j2[0] - hint[0], j2[1] - hint[1]);
   return d1 < d2 ? j1 : j2;
@@ -1448,12 +1459,12 @@ function catmull(p0, p1, p2, p3, t) {
   const t2 = t * t, t3 = t2 * t;
   return 0.5 * (2 * p1 + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
 }
-function pathPose(list, u) {
+function pathPose(list, u, loop) {
   const n = list.length - 1;
   const x = Math.min(n - 1e-6, Math.max(0, u * n));
   const i = Math.floor(x), t = x - i;
-  const a = list[Math.max(0, i - 1)], b = list[i], c = list[i + 1], d = list[Math.min(n, i + 2)];
-  const o = { face: lerp(b.face, c.face, t), flick: lerp(b.flick, c.flick, t) };
+  const a = loop ? list[(i + n - 1) % n] : list[Math.max(0, i - 1)], b = list[i], c = list[i + 1], d = loop ? list[(i + 2) % n] : list[Math.min(n, i + 2)];
+  const o = { face: lerp(b.face, c.face, t), flick: lerp(b.flick, c.flick, t), hang: lerp(b.hang ?? 1, c.hang ?? 1, t) };
   for (const k of PTS) {
     o[k] = [catmull(a[k][0], b[k][0], c[k][0], d[k][0], t), catmull(a[k][1], b[k][1], c[k][1], d[k][1], t)];
   }
@@ -1497,7 +1508,7 @@ class Actor {
       this.t += dt;
       const s = this.step;
       const k = Math.min(1, this.t / s.d);
-      this.pose = pathPose(s.list, (EASE[s.ez] || EASE.soft)(k));
+      this.pose = pathPose(s.list, (EASE[s.ez] || EASE.soft)(k), s.loop);
       if (k < 1) {
         return;
       }
@@ -1582,10 +1593,10 @@ function startGame() {
   run.phase = 'throw';
   me.clear();
   me.push(
-    { pose: P.wind, d: 0.2, ez: 'out' },
-    { pose: P.throw, d: 0.09, ez: 'in' },
+    { path: [P.windUp, P.wind], d: 0.15, ez: 'soft' },
+    { pose: P.throw, d: 0.14, ez: 'io' },
     { fn: launch },
-    { pose: P.follow, d: 0.18, ez: 'out' },
+    { pose: P.follow, d: 0.18, ez: 'soft' },
     { d: 0.18 },
     { pose: P.watch, d: 0.5, ez: 'soft' },
   );
@@ -1834,7 +1845,7 @@ function startChase() {
   }
   fig.mode = 'run';
   me.clear();
-  me.push({ pose: P.runA, d: 0.12, ez: 'out' });
+  me.push({ pose: P.runB, d: 0.12, ez: 'soft' });
 }
 function updateFig(dt) {
   if (fig.mode === 'arrived' && ball) {
@@ -1852,14 +1863,14 @@ function updateFig(dt) {
     SND.step(0.5);
   }
   if (me.idle) {
-    me.push({ path: [P.runP2, P.runB, P.runP1, P.runA], d: 0.4, ez: 'lin' });
+    me.push({ path: [P.runP1, P.runA, P.runP2, P.runB], d: 0.4, ez: 'lin', loop: true });
   }
   if (fig.x >= fig.target) {
     fig.x = fig.target;
     fig.mode = 'arrived';
     me.clear();
     const best = run.dist > life.bestDist + 0.05 && life.games > 0;
-    me.push({ pose: P.crouch, d: 0.22, ez: 'out' }, { d: 0.35 }, { pose: best ? P.cheer : P.oops, d: 0.3, ez: 'soft' });
+    me.push({ pose: P.crouch, d: 0.22, ez: 'out' }, { d: 0.35 }, { path: [P.lift, best ? P.cheer : P.oops], d: 0.36, ez: 'soft' });
   }
 }
 
@@ -3014,8 +3025,12 @@ function mirrorJoint(a, b, j) {
   const px = a[0] + dx * t, py = a[1] + dy * t;
   return [2 * px - j[0], 2 * py - j[1]];
 }
-function ikC(key, a, b, l1, l2, hint) {
-  const j = ik(a, b, l1, l2, hint);
+function ikC(key, a, b, l1, l2, hint, bend) {
+  const j = ik(a, b, l1, l2, hint, bend);
+  if (bend) {
+    prevJ[key] = j;
+    return j;
+  }
   const pj = prevJ[key];
   if (pj) {
     const alt = mirrorJoint(a, b, j);
@@ -3029,6 +3044,18 @@ function ikC(key, a, b, l1, l2, hint) {
   }
   prevJ[key] = j;
   return j;
+}
+function relax(sh, t, amount) {
+  const dx = t[0] - sh[0], dy = t[1] - sh[1];
+  const d = Math.hypot(dx, dy);
+  const want = (UARM + FARM) * 0.96;
+  if (dy <= 0 || d < 1 || d >= want) {
+    return t;
+  }
+  const w = (amount ?? 1) * Math.min(1, Math.max(0, (dy / d - 0.8) / 0.18));
+  const k = w * w * (3 - 2 * w);
+  const nd = d + (want - d) * k;
+  return [sh[0] + (dx / d) * nd, sh[1] + (dy / d) * nd];
 }
 function strokePath(pts, w, col) {
   ctx.strokeStyle = col;
@@ -3055,13 +3082,13 @@ function drawFigure(pose, x, y, breath, live, carry) {
   const sideOff = 6.2 * (1 - af);
   const shF = [p.chest[0] + n[0] * sideOff - u[0], p.chest[1] + n[1] * sideOff - u[1]];
   const shB = [p.chest[0] - n[0] * sideOff - u[0], p.chest[1] - n[1] * sideOff - u[1]];
-  const solve = live ? ikC : (k, aa, bb, l1, l2, h) => ik(aa, bb, l1, l2, h);
-  const kF = solve('kF', p.hip, p.fF, THIGH, SHIN, p.kF);
-  const kB = solve('kB', p.hip, p.fB, THIGH, SHIN, p.kB);
+  const solve = live ? ikC : (k, aa, bb, l1, l2, h, bd) => ik(aa, bb, l1, l2, h, bd);
+  const kF = solve('kF', p.hip, p.fF, THIGH, SHIN, p.kF, KNEE_BEND);
+  const kB = solve('kB', p.hip, p.fB, THIGH, SHIN, p.kB, KNEE_BEND);
   const handF = reach(shF, p.hF, UARM + FARM);
-  const handB = reach(shB, p.hB, UARM + FARM);
-  const eF = solve('eF', shF, handF, UARM, FARM, p.eF);
-  const eB = solve('eB', shB, handB, UARM, FARM, p.eB);
+  const handB = reach(shB, relax(shB, p.hB, p.hang), UARM + FARM);
+  const eF = solve('eF', shF, handF, UARM, FARM, p.eF, ARM_BEND);
+  const eB = solve('eB', shB, handB, UARM, FARM, p.eB, ARM_BEND);
   const hd = [p.head[0] - p.chest[0], p.head[1] - p.chest[1]];
   const hl = Math.hypot(hd[0], hd[1]) || 1;
   const hc = [p.chest[0] + (hd[0] / hl) * 20.5, p.chest[1] + (hd[1] / hl) * 20.5];

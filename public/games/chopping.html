@@ -975,15 +975,27 @@ const EASE = {
   lin: (k) => k,
   soft: (k) => 0.5 - Math.cos(Math.PI * k) / 2,
 };
-function ik(a, b, l1, l2, hint) {
+// Joints only bend the way real ones do, in the figure's own facing-right space (y down):
+// an elbow folds the forearm toward the front of the body (ARM_BEND), a knee folds the shin back (KNEE_BEND).
+const ARM_BEND = -1, KNEE_BEND = 1;
+function ik(a, b, l1, l2, hint, bend) {
   const dx = b[0] - a[0], dy = b[1] - a[1];
   let d = Math.hypot(dx, dy);
   const base = Math.atan2(dy, dx);
-  d = Math.max(Math.abs(l1 - l2) + 0.01, Math.min(l1 + l2 - 0.001, d));
+  // Ease into full extension so a straightening limb's joint doesn't race across the last few units.
+  const L = l1 + l2, soft = L * 0.96;
+  if (d > soft) {
+    d = soft + (L - soft) * (1 - Math.exp(-(d - soft) / (L - soft)));
+  }
+  d = Math.max(Math.abs(l1 - l2) + 0.01, Math.min(L - 0.001, d));
   const c = Math.max(-1, Math.min(1, (l1 * l1 + d * d - l2 * l2) / (2 * l1 * d)));
   const ang = Math.acos(c);
   const j1 = [a[0] + l1 * Math.cos(base + ang), a[1] + l1 * Math.sin(base + ang)];
   const j2 = [a[0] + l1 * Math.cos(base - ang), a[1] + l1 * Math.sin(base - ang)];
+  if (bend) {
+    const side = (j) => (j[0] - a[0]) * (b[1] - j[1]) - (j[1] - a[1]) * (b[0] - j[0]);
+    return Math.sign(side(j1)) === bend ? j1 : j2;
+  }
   const d1 = Math.hypot(j1[0] - hint[0], j1[1] - hint[1]);
   const d2 = Math.hypot(j2[0] - hint[0], j2[1] - hint[1]);
   return d1 < d2 ? j1 : j2;
@@ -1016,6 +1028,7 @@ function pathPose(list, u) {
   for (const k of SCAL) {
     o[k] = lerp(b[k], c[k], t);
   }
+  o.hang = lerp(b.hang ?? 1, c.hang ?? 1, t);
   for (const k of PTS) {
     o[k] = [catmull(a[k][0], b[k][0], c[k][0], d[k][0], t), catmull(a[k][1], b[k][1], c[k][1], d[k][1], t)];
   }
@@ -2187,6 +2200,20 @@ function drawFlyers() {
   }
 }
 
+// A back hand resting low under the shoulder hangs from a nearly straight arm, the way a relaxed arm does.
+// Set hang: 0 on a pose when the back hand has to work there (it blends between poses like any number).
+function relax(sh, t, amount) {
+  const dx = t[0] - sh[0], dy = t[1] - sh[1];
+  const d = Math.hypot(dx, dy);
+  const want = (UARM + FARM) * 0.96;
+  if (dy <= 0 || d < 1 || d >= want) {
+    return t;
+  }
+  const w = (amount ?? 1) * Math.min(1, Math.max(0, (dy / d - 0.8) / 0.18));
+  const k = w * w * (3 - 2 * w);
+  const nd = d + (want - d) * k;
+  return [sh[0] + (dx / d) * nd, sh[1] + (dy / d) * nd];
+}
 function reach(a, b, max) {
   const dx = b[0] - a[0], dy = b[1] - a[1];
   const d = Math.hypot(dx, dy);
@@ -2216,8 +2243,12 @@ function mirrorJoint(a, b, j) {
   const px = a[0] + dx * t, py = a[1] + dy * t;
   return [2 * px - j[0], 2 * py - j[1]];
 }
-function ikC(key, a, b, l1, l2, hint) {
-  const j = ik(a, b, l1, l2, hint);
+function ikC(key, a, b, l1, l2, hint, bend) {
+  const j = ik(a, b, l1, l2, hint, bend);
+  if (bend) {
+    prevJ[key] = j;
+    return j;
+  }
   const pj = prevJ[key];
   if (pj) {
     const alt = mirrorJoint(a, b, j);
@@ -2329,7 +2360,7 @@ function drawFigure(pose, x, y, sx, breath, live, axe) {
   const sl = Math.hypot(sxx, syy) || 1;
   const u = [sxx / sl, syy / sl];
   const sh = [p.chest[0] - u[0], p.chest[1] - u[1]];
-  const solve = live ? ikC : (k, aa, bb, l1, l2, h) => ik(aa, bb, l1, l2, h);
+  const solve = live ? ikC : (k, aa, bb, l1, l2, h, bd) => ik(aa, bb, l1, l2, h, bd);
   const held = axe && axe.held;
   const d = [Math.cos(p.aa), Math.sin(p.aa)];
   let tF = p.hF, tB = p.hB;
@@ -2337,12 +2368,12 @@ function drawFigure(pose, x, y, sx, breath, live, axe) {
     tF = lerp2(p.hF, [p.g[0] + d[0] * p.oF, p.g[1] + d[1] * p.oF], p.wF);
     tB = lerp2(p.hB, [p.g[0] + d[0] * p.oB, p.g[1] + d[1] * p.oB], p.wB);
   }
-  const kF = solve('kF', p.hip, p.fF, THIGH, SHIN, p.kF);
-  const kB = solve('kB', p.hip, p.fB, THIGH, SHIN, p.kB);
+  const kF = solve('kF', p.hip, p.fF, THIGH, SHIN, p.kF, KNEE_BEND);
+  const kB = solve('kB', p.hip, p.fB, THIGH, SHIN, p.kB, KNEE_BEND);
   const handF = reach(sh, tF, UARM + FARM);
-  const handB = reach(sh, tB, UARM + FARM);
-  const eF = ik(sh, handF, UARM, FARM, elbowHint(sh, handF));
-  const eB = ik(sh, handB, UARM, FARM, elbowHint(sh, handB));
+  const handB = reach(sh, relax(sh, tB, (p.hang ?? 1) * (held ? 1 - p.wB : 1)), UARM + FARM);
+  const eF = ik(sh, handF, UARM, FARM, elbowHint(sh, handF), ARM_BEND);
+  const eB = ik(sh, handB, UARM, FARM, elbowHint(sh, handB), ARM_BEND);
   const hd = [p.head[0] - p.chest[0], p.head[1] - p.chest[1]];
   const hl = Math.hypot(hd[0], hd[1]) || 1;
   const hc = [p.chest[0] + (hd[0] / hl) * 20.5, p.chest[1] + (hd[1] / hl) * 20.5];

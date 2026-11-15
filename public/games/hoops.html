@@ -240,15 +240,16 @@ const BASE = {
 const mk = (o, base = BASE) => Object.assign({}, base, o);
 const P = {};
 P.stand = mk({ head: [0, -122], hF: [4, -55], hB: [-1, -55], eF: [-2, -76], eB: [-1, -76] });
-P.hold = mk({ head: [1, -121], hip: [-1, -66], hF: [14, -83], hB: [24, -99], eF: [2, -70], eB: [8, -72], ball: [21.5, -88.5] });
-P.crouch = mk({ head: [7, -108], chest: [4, -85], hip: [-4, -55], kF: [26, -28], kB: [22, -28], hF: [15, -73], hB: [24, -84], eF: [4, -60], eB: [10, -62], ball: [22, -78] });
+P.hold = mk({ head: [1, -121], hip: [-1, -66], hF: [14, -83], hB: [24, -99], eF: [2, -70], eB: [8, -72], ball: [21.5, -88.5], hang: 0 });
+P.crouch = mk({ head: [7, -108], chest: [4, -85], hip: [-4, -55], kF: [26, -28], kB: [22, -28], hF: [15, -73], hB: [24, -84], eF: [4, -60], eB: [10, -62], ball: [22, -78], hang: 0 });
 P.rise = mk({ head: [-1, -119], chest: [0, -95], hip: [0, -64], hF: [11, -106], hB: [17, -114], eF: [16, -86], eB: [20, -88], ball: [16, -114] });
 P.set = mk({ head: [-3, -123], chest: [-1, -99], hip: [0, -68], fF: [3, -9], fB: [-2, -9], hF: [15, -134], hB: [21, -136], eF: [18, -114], eB: [24, -114], ball: [21.7, -143.3] });
 P.follow = mk({ head: [-3, -123], chest: [-1, -99], hip: [0, -68], hF: [20, -137], eF: [14, -118], hB: [14, -124], eB: [22, -104], flick: 1 });
+P.drop = mk({ head: [1, -122], chest: [0, -97], hip: [0, -66], hF: [32, -80], hB: [26, -74], eF: [16, -80], eB: [12, -78] });
 P.bend = mk({ face: -1, head: [-28, -104], chest: [-14, -88], hip: [8, -60], kF: [-16, -38], kB: [-12, -38], fF: [-3, -8], fB: [2, -8], hF: [-45, -58], hB: [-54, -61], eF: [-30, -80], eB: [-34, -82], ball: [-51, -57] });
 P.turn = mk({ face: 0, head: [0, -123.5], chest: [0, -98.5], hip: [0, -68.6], fF: [3, -8], fB: [-3, -8], kF: [3, -38], kB: [-3, -38], hF: [9, -55], hB: [-9, -55], eF: [9, -76], eB: [-9, -76] });
-P.turnHold = mk({ hF: [8, -66], hB: [-6, -66], eF: [12, -82], eB: [-10, -82], ball: [1, -70] }, P.turn);
-P.cheer = mk({ head: [0, -122], chest: [0, -97], hip: [0, -67], hF: [16, -136], hB: [-12, -134], eF: [14, -118], eB: [-12, -116] });
+P.turnHold = mk({ hF: [8, -66], hB: [-6, -66], eF: [12, -82], eB: [-10, -82], ball: [1, -70], hang: 0 }, P.turn);
+P.cheer = mk({ head: [0, -122], chest: [0, -97], hip: [0, -67], hF: [16, -136], hB: [6, -138], eF: [14, -118], eB: [2, -118] });
 
 const PTS = ['head', 'chest', 'hip', 'fF', 'fB', 'kF', 'kB', 'hF', 'hB', 'eF', 'eB'];
 const lerp = (a, b, k) => a + (b - a) * k;
@@ -260,7 +261,7 @@ function ballPos(p) {
   return [(p.hF[0] + p.hB[0]) / 2 + 3 * p.face, (p.hF[1] + p.hB[1]) / 2 - 6];
 }
 function lerpPose(a, b, k) {
-  const o = { face: lerp(a.face, b.face, k), flick: lerp(a.flick, b.flick, k) };
+  const o = { face: lerp(a.face, b.face, k), flick: lerp(a.flick, b.flick, k), hang: lerp(a.hang ?? 1, b.hang ?? 1, k) };
   for (const n of PTS) {
     o[n] = lerp2(a[n], b[n], k);
   }
@@ -276,15 +277,27 @@ const EASE = {
 };
 const ease = EASE.io;
 
-function ik(a, b, l1, l2, hint) {
+// Joints only bend the way real ones do, in the figure's own facing-right space (y down):
+// an elbow folds the forearm toward the front of the body (ARM_BEND), a knee folds the shin back (KNEE_BEND).
+// Facing left flips both. The hint only matters when no bend is passed.
+const ARM_BEND = -1, KNEE_BEND = 1;
+function ik(a, b, l1, l2, hint, bend) {
   const dx = b[0] - a[0], dy = b[1] - a[1];
   let d = Math.hypot(dx, dy);
   const base = Math.atan2(dy, dx);
-  d = Math.max(Math.abs(l1 - l2) + 0.01, Math.min(l1 + l2 - 0.001, d));
+  const L = l1 + l2, soft = L * 0.96;
+  if (d > soft) {
+    d = soft + (L - soft) * (1 - Math.exp(-(d - soft) / (L - soft)));
+  }
+  d = Math.max(Math.abs(l1 - l2) + 0.01, Math.min(L - 0.001, d));
   const c = Math.max(-1, Math.min(1, (l1 * l1 + d * d - l2 * l2) / (2 * l1 * d)));
   const ang = Math.acos(c);
   const j1 = [a[0] + l1 * Math.cos(base + ang), a[1] + l1 * Math.sin(base + ang)];
   const j2 = [a[0] + l1 * Math.cos(base - ang), a[1] + l1 * Math.sin(base - ang)];
+  if (bend) {
+    const side = (j) => (j[0] - a[0]) * (b[1] - j[1]) - (j[1] - a[1]) * (b[0] - j[0]);
+    return Math.sign(side(j1)) === bend ? j1 : j2;
+  }
   const d1 = Math.hypot(j1[0] - hint[0], j1[1] - hint[1]);
   const d2 = Math.hypot(j2[0] - hint[0], j2[1] - hint[1]);
   return d1 < d2 ? j1 : j2;
@@ -671,7 +684,7 @@ function pathPose(list, u) {
   const x = Math.min(n - 1e-6, Math.max(0, u * n));
   const i = Math.floor(x), t = x - i;
   const a = list[Math.max(0, i - 1)], b = list[i], c = list[i + 1], d = list[Math.min(n, i + 2)];
-  const o = { face: lerp(b.face, c.face, t), flick: lerp(b.flick, c.flick, t) };
+  const o = { face: lerp(b.face, c.face, t), flick: lerp(b.flick, c.flick, t), hang: lerp(b.hang ?? 1, c.hang ?? 1, t) };
   for (const k of PTS) {
     o[k] = [catmull(a[k][0], b[k][0], c[k][0], d[k][0], t), catmull(a[k][1], b[k][1], c[k][1], d[k][1], t)];
   }
@@ -748,7 +761,7 @@ function newRound() {
   rack.reserve = ROUND - 6;
   me.clear();
   me.hasBall = true;
-  me.pose = P.hold;
+  me.push({ pose: P.hold, d: 0.3, ez: 'soft' });
   state = 'ready';
   doneAt = -1;
   lastRelease = null;
@@ -867,11 +880,11 @@ function shoot() {
     {
       fn: () => {
         if (!rack.items.length) {
-          me.push({ pose: P.stand, d: 0.4, ez: 'soft' }, { fn: () => { state = 'done'; doneAt = clock; } });
+          me.push({ path: [P.drop, P.stand], d: 0.4, ez: 'soft' }, { fn: () => { state = 'done'; doneAt = clock; } });
           return;
         }
         me.push(
-          { path: [P.stand, P.turn, P.bend], d: 0.78, ez: 'soft' },
+          { path: [P.drop, P.turn, P.bend], d: 0.78, ez: 'soft' },
           { d: 0.04 },
           { fn: () => grab() },
           { path: [P.turnHold, P.hold], d: 0.46, ez: 'soft' },
@@ -925,7 +938,7 @@ function endGame() {
   $('hint').classList.add('hidden');
   if (made >= 7) {
     me.clear();
-    me.push({ pose: P.cheer, d: 0.35, ez: 'out' }, { d: 0.6 }, { pose: P.stand, d: 0.5, ez: 'soft' });
+    me.push({ path: [P.drop, P.cheer], d: 0.5, ez: 'soft' }, { d: 0.45 }, { path: [P.drop, P.stand], d: 0.6, ez: 'soft' });
   }
 }
 
@@ -1310,6 +1323,32 @@ function reach(a, b, max) {
   return [a[0] + (dx / d) * max, a[1] + (dy / d) * max];
 }
 
+// A back hand resting low under the shoulder hangs from a nearly straight arm.
+// Set hang: 0 on a pose when the back hand has to work there.
+function relax(sh, t, amount) {
+  const dx = t[0] - sh[0], dy = t[1] - sh[1];
+  const d = Math.hypot(dx, dy);
+  const want = (UARM + FARM) * 0.96;
+  if (dy <= 0 || d < 1 || d >= want) {
+    return t;
+  }
+  const w = (amount ?? 1) * Math.min(1, Math.max(0, (dy / d - 0.8) / 0.18));
+  const k = w * w * (3 - 2 * w);
+  const nd = d + (want - d) * k;
+  return [sh[0] + (dx / d) * nd, sh[1] + (dy / d) * nd];
+}
+
+// Side-on, an elbow folds anatomically; facing the camera it flares out to its own side.
+// While turning it swings between the two, passing through the foreshortened middle.
+function elbow(sh, hand, fs, out, af) {
+  const side = ik(sh, hand, UARM, FARM, null, ARM_BEND * fs);
+  if (af >= 0.6) {
+    return side;
+  }
+  const front = ik(sh, hand, UARM, FARM, null, out);
+  return lerp2(front, side, EASE.soft(af / 0.6));
+}
+
 function breathe(p, amt) {
   if (!amt) {
     return p;
@@ -1332,8 +1371,12 @@ function mirrorJoint(a, b, j) {
   const px = a[0] + dx * t, py = a[1] + dy * t;
   return [2 * px - j[0], 2 * py - j[1]];
 }
-function ikC(key, a, b, l1, l2, hint) {
-  const j = ik(a, b, l1, l2, hint);
+function ikC(key, a, b, l1, l2, hint, bend) {
+  const j = ik(a, b, l1, l2, hint, bend);
+  if (bend) {
+    prevJ[key] = j;
+    return j;
+  }
   const pj = prevJ[key];
   if (pj) {
     const alt = mirrorJoint(a, b, j);
@@ -1378,13 +1421,13 @@ function drawFigure(a, x, breath, live) {
   const shF = [p.chest[0] + n[0] * sideOff - u[0], p.chest[1] + n[1] * sideOff - u[1]];
   const shB = [p.chest[0] - n[0] * sideOff - u[0], p.chest[1] - n[1] * sideOff - u[1]];
 
-  const solve = live ? ikC : (k, aa, bb, l1, l2, h) => ik(aa, bb, l1, l2, h);
-  const kF = solve('kF', p.hip, p.fF, THIGH, SHIN, p.kF);
-  const kB = solve('kB', p.hip, p.fB, THIGH, SHIN, p.kB);
+  const solve = live ? ikC : (k, aa, bb, l1, l2, h, bd) => ik(aa, bb, l1, l2, h, bd);
+  const kF = solve('kF', p.hip, p.fF, THIGH, SHIN, p.kF, KNEE_BEND * fs);
+  const kB = solve('kB', p.hip, p.fB, THIGH, SHIN, p.kB, KNEE_BEND * fs);
   const handF = reach(shF, p.hF, UARM + FARM);
-  const handB = reach(shB, p.hB, UARM + FARM);
-  const eF = solve('eF', shF, handF, UARM, FARM, p.eF);
-  const eB = solve('eB', shB, handB, UARM, FARM, p.eB);
+  const handB = reach(shB, relax(shB, p.hB, p.hang), UARM + FARM);
+  const eF = elbow(shF, handF, fs, 1, af);
+  const eB = elbow(shB, handB, fs, -1, af);
   const hd = [p.head[0] - p.chest[0], p.head[1] - p.chest[1]];
   const hl = Math.hypot(hd[0], hd[1]) || 1;
   const hc = [p.chest[0] + (hd[0] / hl) * 20.5, p.chest[1] + (hd[1] / hl) * 20.5];
