@@ -7,7 +7,10 @@ import './app.css';
 const GA_ID = import.meta.env.VITE_GA_ID as string | undefined;
 
 export const links: Route.LinksFunction = () => [
-  { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+  { rel: 'icon', href: '/favicon.ico', sizes: '48x48' },
+  { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32.png' },
+  { rel: 'icon', type: 'image/png', sizes: '192x192', href: '/favicon-192.png' },
+  { rel: 'apple-touch-icon', href: '/apple-touch-icon.png' },
   { rel: 'preload', href: '/fonts/geist-variable.woff2', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' },
   { rel: 'preload', href: '/fonts/geist-mono-variable.woff2', as: 'font', type: 'font/woff2', crossOrigin: 'anonymous' },
 ];

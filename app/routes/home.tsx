@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router';
 import type { Route } from './+types/home';
-import { Fish } from '~/components/fish';
+import { Logo } from '~/components/logo';
 import { games, isNew, SITE, type Game } from '~/lib/games';
 import { seo } from '~/lib/seo';
 
@@ -64,7 +64,7 @@ export default function Home() {
   return (
     <main className='mx-auto max-w-[1120px] px-4 pb-20 sm:px-8'>
       <header className='mx-auto flex max-w-2xl flex-col items-center pt-16 text-center sm:pt-24'>
-        <Fish className='animate-bob size-24 sm:size-28' />
+        <Logo className='animate-bob size-28 sm:size-32' />
         <span className='font-goofy mt-3 text-[22px] leading-none font-bold'>goofyfish</span>
 
         <h1 className='mt-10 text-[38px] leading-[1.05] font-semibold tracking-[-0.035em] text-balance sm:text-[56px]'>

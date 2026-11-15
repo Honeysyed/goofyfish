@@ -1,5 +1,5 @@
 import { Link } from 'react-router';
-import { Fish } from './fish';
+import { Logo } from './logo';
 
 type NotFoundProps = {
   title?: string;
@@ -14,7 +14,7 @@ export function NotFound(props: NotFoundProps) {
   return (
     <main className='mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center px-6 text-center'>
       <title>{`${title} · Goofy Fish`}</title>
-      <Fish className='size-20 -scale-x-100 rotate-12' />
+      <Logo className='size-24 rotate-12' />
       <h1 className='mt-6 text-3xl font-semibold tracking-tight'>{title}</h1>
       <p className='mt-2 text-neutral-500'>{message}</p>
       <Link
