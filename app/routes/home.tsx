@@ -68,8 +68,8 @@ function MakeCard() {
         </span>
       </div>
       <div className='px-2 pt-3 pb-2'>
-        <h2 className='font-display text-[17px] leading-tight sm:text-[18px]'>Make your own</h2>
-        <p className='mt-1 text-[13px] leading-snug text-neutral-500'>Build a game with Claude Code and send it in</p>
+        <h2 className='font-display text-[17px] leading-tight sm:text-[18px]'>Make & submit a game</h2>
+        <p className='mt-1 text-[13px] leading-snug text-neutral-500'>Build it with Claude Code, we put it on the site</p>
       </div>
     </Link>
   );
