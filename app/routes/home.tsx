@@ -65,9 +65,8 @@ export default function Home() {
     <main className='mx-auto max-w-[1120px] px-4 pb-20 sm:px-8'>
       <header className='mx-auto flex max-w-2xl flex-col items-center pt-16 text-center sm:pt-24'>
         <Logo className='animate-bob size-28 sm:size-32' />
-        <span className='font-goofy mt-3 text-[22px] leading-none font-bold'>goofyfish</span>
 
-        <h1 className='mt-10 text-[38px] leading-[1.05] font-semibold tracking-[-0.035em] text-balance sm:text-[56px]'>
+        <h1 className='mt-8 text-[38px] leading-[1.05] font-semibold tracking-[-0.035em] text-balance sm:text-[56px]'>
           Small, silly games for the browser.
         </h1>
         <p className='mt-5 max-w-md text-[16px] leading-relaxed text-pretty text-neutral-500 sm:text-[17px]'>
