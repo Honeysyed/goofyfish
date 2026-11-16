@@ -2,7 +2,7 @@
 import GithubIcon from '~/components/GithubIcon.astro';
 import Logo from '~/components/Logo.astro';
 import Base from '~/layouts/Base.astro';
-import { games, isNew } from '~/lib/games';
+import { games } from '~/lib/games';
 import { absoluteUrl, SITE } from '~/lib/site';
 
 const jsonLd = {
@@ -59,11 +59,6 @@ const jsonLd = {
           >
             <div class='relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-white'>
               <img src={`/thumbs/${game.slug}.webp`} alt='' loading='lazy' class='h-[78%] w-[84%] object-contain' />
-              {isNew(game) && (
-                <span class='absolute top-2 right-2 rounded-md border border-amber-ink/20 bg-butter px-1.5 py-0.5 font-mono text-[10.5px] tracking-wide text-umber uppercase'>
-                  New
-                </span>
-              )}
             </div>
             <div class='px-2 pt-3 pb-2'>
               <h2 class='font-display text-[17px] leading-tight sm:text-[18px]'>{game.name}</h2>

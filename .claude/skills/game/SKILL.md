@@ -118,7 +118,7 @@ If there's no API key, skip this step and say so in the pull request. A maintain
 
 ## 6. Register it
 
-Add an entry at the top of the array in `app/lib/games.ts`:
+Add an entry to the array in `app/lib/games.ts`, right after the first five games (array order is homepage order, and the first five are pinned):
 
 ```ts
 {
@@ -131,7 +131,7 @@ Add an entry at the top of the array in `app/lib/games.ts`:
 },
 ```
 
-`controls` is one word: `tap`, `hold`, `swipe`, `aim`, `steer`, `arrows`, `draw` or `body` (the type rejects anything else). Add `needs: 'webcam'` if it needs a camera. `addedAt` is today. Only the games with the newest `addedAt` get the "New" badge, so adding one moves the badge to it; that's expected.
+`controls` is one word: `tap`, `hold`, `swipe`, `aim`, `steer`, `arrows`, `draw` or `body` (the type rejects anything else). Add `needs: 'webcam'` if it needs a camera. `addedAt` is today.
 
 Run `pnpm typecheck` and `pnpm build`, then open `/<slug>` and `/` on the dev server (`http://localhost:5173` unless `pnpm astro dev status` says otherwise) to see it inside the site.
 
