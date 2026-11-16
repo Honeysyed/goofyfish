@@ -101,6 +101,7 @@
   .logo svg { width: 26px; height: 26px; }
   .title { font-size: 32px; line-height: 1; margin: 0; }
   .keys { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: var(--muted); font-size: 15px; margin: 18px 0 10px; }
+  .keys.more { margin-top: 0; }
   .tag { color: var(--muted); font-size: 15px; line-height: 1.5; margin: 0 0 26px; }
   .chip { display: inline-flex; align-items: center; font-size: 13px; padding: 3px 9px; border-radius: 7px; background: var(--butter); color: var(--umber); white-space: nowrap; }
   .actions { display: flex; gap: 10px; }
@@ -161,13 +162,14 @@
   <div id="streak"></div>
 </div>
 
-<div id="hint" class="hidden"><span>Tap where to hop</span><span class="kbd-only">or</span><kbd class="kbd-only">← →</kbd><kbd class="kbd-only">Space</kbd></div>
+<div id="hint" class="hidden"><span>Tap where to hop</span><span class="kbd-only">or</span><kbd class="kbd-only">← →</kbd><kbd class="kbd-only">Space</kbd><kbd class="kbd-only">Shift</kbd><span class="kbd-only">to run</span></div>
 
 <div id="overlay" class="on">
   <div class="card show" id="startCard">
     <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5c3.9 0 6.5 3 6.5 6.6 0 4-3.3 7.2-6.5 7.9-3.2-.7-6.5-3.9-6.5-7.9 0-3.6 2.6-6.6 6.5-6.6z"/><path d="M10.8 18.4h2.4L12 17z" fill="#fff"/><path d="M12 18.6c-1.3 1.4 1.3 2.2 0 3.6"/></svg></div>
     <h1 class="title">Keep bopping</h1>
     <div class="keys"><kbd>Tap</kbd> where to hop, bop the balloon</div>
+    <div class="keys more kbd-only"><kbd>Shift</kbd> to run, <kbd>↓</kbd> to drop</div>
     <p class="tag">Don&rsquo;t let it touch the floor. More balloons join in, and somebody has darts.</p>
     <div class="actions">
       <button class="btn primary" id="playBtn"><span>Play</span><kbd class="kbd-only">Space</kbd></button>
@@ -206,7 +208,7 @@ const COL = { bg: '#ffffff', ink: '#141414', far: '#9a9a9a', muted: '#737373', f
 const FILLS = ['#fde68a', '#ffffff', '#e5e5e5'];
 
 const FG = 2000;
-const HOP = 680, AIRHOP = 600, HOP_T = 0.68, AIRHOP_T = 0.6, MAXV = 640, RUN = 430;
+const HOP = 680, AIRHOP = 600, HOP_T = 0.68, AIRHOP_T = 0.6, MAXV = 640, RUN = 430, SPRINT = 760, DROP = 820;
 const BRX = 26, BRY = 31, BR = 29, BODY_R = 12;
 const BOP = 430;
 const ROOM_H = 600, MIN_W = 380, MAX_W = 1400;
@@ -582,7 +584,7 @@ let darts = [];
 const wind = { f: 0, dir: 1, phase: 'calm', t: 0, next: 0, k: 0, peak: 0, wisps: [] };
 const popups = [];
 const bits = [];
-const keys = { L: false, R: false };
+const keys = { L: false, R: false, run: false, drop: false };
 let score = 0, bops = 0, perfects = 0, saves = 0, blocks = 0, streak = 0, bestChain = 0, playTime = 0, lastResult = null, nextBalloonAt = 12, dartIn = 0;
 const cam = { shake: 0, sx: 0, sy: 0 };
 
@@ -757,6 +759,10 @@ function toWorldX(px) {
   return (px - ox) / s;
 }
 
+function hopMax() {
+  return MAXV * clamp(W / 800, 1, 1.6) * (keys.run ? 1.3 : 1);
+}
+
 function hop(tx) {
   audio();
   if (mode !== 'play' || me.state !== 'ok') {
@@ -772,7 +778,7 @@ function hop(tx) {
     me.airHops = 0;
     me.squash = 0;
     if (aimed) {
-      me.vx = clamp((tx - me.x) / HOP_T, -MAXV, MAXV);
+      me.vx = clamp((tx - me.x) / HOP_T, -hopMax(), hopMax());
     }
     SND.hop();
     dust(me.x, 0, 12, 3);
@@ -782,7 +788,7 @@ function hop(tx) {
     me.airHops++;
     me.vy = -AIRHOP;
     if (aimed) {
-      me.vx = clamp((tx - me.x) / AIRHOP_T, -MAXV, MAXV);
+      me.vx = clamp((tx - me.x) / AIRHOP_T, -hopMax(), hopMax());
     }
     me.spin = 1;
     SND.airhop();
@@ -811,7 +817,22 @@ cv.addEventListener('pointerdown', (e) => {
 const LEFT = { ArrowLeft: 1, KeyA: 1 };
 const RIGHT = { ArrowRight: 1, KeyD: 1 };
 const ACT = { Space: 1, Enter: 1, ArrowUp: 1, KeyW: 1 };
+const RUNK = { ShiftLeft: 1, ShiftRight: 1 };
+const DROPK = { ArrowDown: 1, KeyS: 1 };
 addEventListener('keydown', (e) => {
+  if (RUNK[e.code]) {
+    keys.run = true;
+    return;
+  }
+  if (DROPK[e.code]) {
+    e.preventDefault();
+    keys.drop = true;
+    if (!e.repeat && mode === 'play' && me.air && me.state === 'ok') {
+      me.vy = Math.max(me.vy, DROP);
+      me.queue = null;
+    }
+    return;
+  }
   if (LEFT[e.code] || RIGHT[e.code]) {
     e.preventDefault();
     keys.L = keys.L || !!LEFT[e.code];
@@ -841,10 +862,18 @@ addEventListener('keyup', (e) => {
   if (RIGHT[e.code]) {
     keys.R = false;
   }
+  if (RUNK[e.code]) {
+    keys.run = false;
+  }
+  if (DROPK[e.code]) {
+    keys.drop = false;
+  }
 });
 addEventListener('blur', () => {
   keys.L = false;
   keys.R = false;
+  keys.run = false;
+  keys.drop = false;
 });
 addEventListener('contextmenu', (e) => e.preventDefault());
 $('playBtn').addEventListener('click', startGame);
@@ -949,6 +978,14 @@ function touchBalloon(b, cap) {
     b.vx = clamp(off * 3 + me.face * 60 + me.vx * 0.3, -260, 260);
   } else {
     b.vx = clamp(off * (top ? 6 : 4) + me.vx * 0.35, -300, 300);
+  }
+  const others = balloons.filter((x) => x !== b && !x.gone && !x.rest);
+  if (others.length) {
+    const cx = others.reduce((a, x) => a + x.x, 0) / others.length;
+    const gap = cx - b.x;
+    if (Math.abs(gap) > 140) {
+      b.vx = clamp(b.vx + (gap - Math.sign(gap) * 140) * 0.45, -320, 320);
+    }
   }
   b.cool = 0.25;
   b.sq = perfect ? 0.32 : 0.24;
@@ -1224,7 +1261,8 @@ function stepRope(b, dt) {
 function updateBalloons(dt) {
   const D = difficulty();
   const live = balloons.filter((b) => !b.gone);
-  const crowd = live.length >= 3 ? 0.72 : live.length === 2 ? 0.84 : 1;
+  const wide = clamp((W - 600) / 800, 0, 1);
+  const crowd = (live.length >= 3 ? 0.72 : live.length === 2 ? 0.84 : 1) * (1 - wide * (live.length > 1 ? 0.18 : 0.08));
   D.g *= crowd;
   D.term *= crowd;
   const k = D.g / D.term;
@@ -1324,8 +1362,14 @@ function updateMe(dt) {
   if (dir) {
     me.face = dir;
   }
+  const speed = keys.run ? SPRINT : RUN;
   if (!me.air) {
-    me.vx = dir ? approach(me.vx, dir * RUN, 3200 * dt) : approach(me.vx, 0, 2600 * dt);
+    me.vx = dir ? approach(me.vx, dir * speed, (keys.run ? 4400 : 3200) * dt) : approach(me.vx, 0, 2600 * dt);
+    me.dustT = (me.dustT || 0) - dt;
+    if (Math.abs(me.vx) > RUN + 60 && me.dustT <= 0) {
+      me.dustT = 0.07;
+      dust(me.x - Math.sign(me.vx) * 8, 0, 8, 1);
+    }
     if (!dir && me.state === 'ok') {
       const b = urgent();
       if (b && Math.abs(b.x - me.x) > 26) {
@@ -1334,9 +1378,9 @@ function updateMe(dt) {
     }
   } else {
     if (dir) {
-      me.vx = approach(me.vx, dir * RUN, 1600 * dt);
+      me.vx = approach(me.vx, dir * speed, (keys.run ? 2400 : 1600) * dt);
     }
-    me.vy += FG * dt;
+    me.vy += FG * (keys.drop && me.state === 'ok' ? 2.2 : 1) * dt;
   }
   me.x += me.vx * dt;
   me.y += me.vy * dt;
@@ -1388,6 +1432,10 @@ function updateMe(dt) {
         chest: [4, -97],
         head: [6, -121],
       });
+      if (Math.abs(me.vx) > RUN + 60) {
+        target.chest = [9, -95];
+        target.head = [14, -117];
+      }
     }
   }
   const rate = me.bopT < 0.06 || me.kickT < 0.06 ? 40 : me.state !== 'ok' ? 10 : 18;
