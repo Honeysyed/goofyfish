@@ -4,8 +4,8 @@ export type Game = {
   tagline: string;
   description: string;
   addedAt: string;
-  controls: 'tap' | 'hold' | 'swipe' | 'aim' | 'steer' | 'arrows' | 'draw' | 'body';
-  needs?: 'webcam';
+  controls: 'tap' | 'hold' | 'swipe' | 'aim' | 'steer' | 'arrows' | 'draw' | 'body' | 'type';
+  needs?: 'webcam' | 'keyboard';
   hidden?: boolean;
 };
 
@@ -54,6 +54,16 @@ const allGames: Game[] = [
       'A little basketball game. Ten balls, one round: hold to power up, release to shoot. A swish is worth three, and three in a row doubles it.',
     addedAt: '2026-11-10',
     controls: 'hold',
+  },
+  {
+    slug: 'bridging',
+    name: 'Keep Bridging',
+    tagline: 'Every word you type is a plank, keep it ahead of their feet',
+    description:
+      'A typing game. Every word you type lays a board under a stick figure who never stops walking. They keep pace with you, typos make them stumble, and if they reach the edge it is a splash. 25 lessons from f and j to full sentences, with a ghost of your best run to race, a hat to win in each lesson and an endless goose chase.',
+    addedAt: '2026-11-18',
+    controls: 'type',
+    needs: 'keyboard',
   },
   {
     slug: 'bopping',
