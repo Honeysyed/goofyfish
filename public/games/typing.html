@@ -323,6 +323,7 @@ G.walkP1 = mk({ head: [7, -120], chest: [4, -96], hip: [0, -66], fF: [2, -8], kF
 G.walkB = mk({ fF: [-18, -9], kF: [-5, -37], fB: [20, -8], kB: [21, -36] }, G.walkA);
 G.walkP2 = mk({ head: [7, -120], chest: [4, -96], hip: [0, -66], fB: [2, -8], kB: [12, -37], fF: [4, -24], kF: [18, -46], hF: [27, -108], hB: [25, -128] }, G.walkA);
 G.cycle = [G.walkA, G.walkP1, G.walkB, G.walkP2, G.walkA];
+G.squat = mk({ head: [6, -98], chest: [3, -74], hip: [0, -44], fF: [20, -8], kF: [26, -26], fB: [-16, -8], kB: [-4, -26], hF: [24, -84], eF: [20, -64], hB: [22, -100], eB: [20, -80] }, G.walkA);
 G.stand = mk({ head: [6, -120], chest: [3, -96], hip: [0, -66], fF: [12, -8], kF: [15, -38], fB: [-10, -8], kB: [-1, -38] }, G.walkA);
 G.wind = mk({ head: [-2, -121], chest: [-1, -96], hip: [0, -65], fF: [20, -8], kF: [20, -36], fB: [-18, -8], kB: [-6, -36], hF: [8, -126], eF: [16, -108], hB: [4, -132], eB: [12, -116] }, G.walkA);
 G.bonk = mk({ head: [20, -106], chest: [13, -84], hip: [2, -57], fF: [32, -8], kF: [31, -34], fB: [-20, -8], kB: [-8, -33], hF: [40, -102], eF: [30, -84], hB: [36, -112], eB: [30, -94] }, G.walkA);
@@ -476,7 +477,7 @@ function strokePath(pts, w, col) {
   ctx.stroke();
 }
 
-// opts: flip, ink, far, scale, live, goon (white head with a googly eye), backHand(hand, elbow) draws on the back hand in local coordinates.
+// opts: flip, ink, far, scale, live, goon (white head with a googly eye), backHand(hand, elbow) draws on the back hand in local coordinates, deco() draws on the head (up is -y, front is +x).
 function drawFigure(a, x, y, breath, opts) {
   const o = opts || {};
   const ink = o.ink || COL.fig || COL.ink;
@@ -547,6 +548,13 @@ function drawFigure(a, x, y, breath, opts) {
     ctx.fillStyle = ink;
     ctx.fill();
   }
+  if (o.deco) {
+    ctx.save();
+    ctx.translate(hc[0], hc[1]);
+    ctx.rotate(Math.atan2(hd[0] / hl, -hd[1] / hl));
+    o.deco();
+    ctx.restore();
+  }
   strokePath([shF, eF, handF], ARM, ink);
   ctx.restore();
   return { head: hc, handF, handB, eF };
@@ -614,6 +622,7 @@ const popups = [];
 const bits = [];
 const letters = [];
 const debris = [];
+const shots = [];
 let shake = 0, shakeV = 0;
 
 function popup(text, sub, hot, x, y) {
@@ -872,6 +881,9 @@ const SND = {
     partial(150, 70, 0.18, 0.35, 'sine', 0.12);
     hiss(0.08, 0.2, 'bandpass', 600, 300, 1, 0.15);
   },
+  whoosh() {
+    hiss(0.22, 0.05, 'bandpass', 600, 1800, 1.2, 0.2);
+  },
   pop() {
     hiss(0.08, 0.3, 'highpass', 1800, 900, 0.8, 0.12);
     partial(900, 300, 0.07, 0.08, 'sine', 0.1);
@@ -911,6 +923,38 @@ const TIPS = [
   'Numbers live on the top row. Reach up, then come home.',
   'Everything at once, and fast.',
 ];
+const BOSSES = [
+  { name: 'Big Gary', hat: 'cap', col: '#5b6470', hc: '#e76f51', stache: true },
+  { name: 'Auntie Wallop', hat: 'beanie', col: '#8a4b6a', hc: '#f4a261' },
+  { name: 'Captain Huff', hat: 'pirate', col: '#7a3b3b', hc: '#1f1f1f', stache: true },
+  { name: 'Chef Bonk', hat: 'chef', col: '#3f6a8a', hc: '#ffffff', stache: true },
+  { name: 'Viking Steve', hat: 'viking', col: '#6a5a3a', hc: '#9ca3af', stache: true },
+  { name: 'Sheriff Smack', hat: 'cowboy', col: '#8a5a2b', hc: '#b07a45', stache: true },
+  { name: 'Professor Thud', hat: 'wizard', col: '#5b4b8a', hc: '#7c6bc4' },
+  { name: 'Duke Noodle', hat: 'tophat', col: '#2f6f6a', hc: '#1f1f1f', stache: true },
+  { name: 'Mr Troll', hat: 'party', col: '#4d7a3a', hc: '#f9a8d4' },
+  { name: 'Count Bonkula', hat: 'tophat', col: '#5a2a4a', hc: '#1f1f1f' },
+  { name: 'The Moon King', hat: 'crown', col: '#3a3a5a', hc: COL.butterHi, stache: true },
+];
+const ENDLESS_BOSS = [
+  'the pickle army marches at dawn',
+  'my socks smell like victory',
+  'nobody types faster than my grandma',
+  'I ate the last waffle and I am not sorry',
+  'bow before the mighty noodle',
+  'your keyboard is no match for my moustache',
+  'I have been practising my angry face all week',
+  'prepare to be mildly inconvenienced',
+];
+const GOON_HATS = ['cap', 'beanie', 'party', 'chef', 'cowboy', 'tophat'];
+const HAT_COLS = ['#e76f51', '#f4a261', '#2a9d8f', '#7c6bc4', '#f9a8d4', '#60a5fa'];
+const SIGN_COLS = ['#ffffff', '#ffffff', '#e0f2fe', '#fce7f3', '#dcfce7', '#ede9fe', '#ffedd5'];
+const WOUNDS = ['eye', 'plaster', 'bump', 'cheek', 'plaster2', 'bump2'];
+const tint = (hex, k) => {
+  const n = parseInt(hex.slice(1), 16);
+  const ch = (v) => Math.round(v + (255 - v) * k);
+  return `rgb(${ch(n >> 16)},${ch((n >> 8) & 255)},${ch(n & 255)})`;
+};
 const L = (name, o) => Object.assign({ name, add: '', wpm: 12, n: 12, cap: 3, sides: 2, kinds: {}, gap: 1 }, o);
 const BOUTS = [
   L('Home keys', { add: 'fjdk', wpm: 8, n: 8, cap: 2, sides: 1, boss: 'jd fk dj kf' }),
@@ -1042,7 +1086,7 @@ function makeQueue(b) {
     q.push({ kind, words: [w], side: b.sides === 1 ? 1 : r() < 0.5 ? 1 : -1 });
   }
   if (b.boss) {
-    q.splice(Math.round(b.n * 0.7), 0, { kind: 'boss', words: b.boss.split(' '), side: b.sides === 1 ? 1 : r() < 0.5 ? 1 : -1 });
+    q.push({ kind: 'boss', words: b.boss.split(' '), side: b.sides === 1 ? 1 : r() < 0.5 ? 1 : -1, def: BOSSES[b.lvl] });
   }
   return q;
 }
@@ -1079,9 +1123,9 @@ let mode = 'menu';
 let clock = 0, runTime = 0, slow = 1, slowT = 0, paused = false;
 let bout = 0, gauntlet = false, queue = [], goons = [], target = null, nextId = 1;
 let hearts = 3, kos = 0, total = 0, correct = 0, errors = 0, combo = 0, bestCombo = 0, hits = 0;
-let activeT = 0, lastKeyT = -1, wordsDone = 0, spawnT = 0, clearT = -1, lastResult = null, endAt = 0;
+let activeT = 0, lastKeyT = -1, wordsDone = 0, calmT = 0, bossAt = 20, spawnT = 0, clearT = -1, lastResult = null, endAt = 0;
 const hero = { body: newBody(P.guard), face: 1, jabT: 0, upT: 0, hurtT: 0, oopsT: 0, inv: 0, state: 'ok', downT: 0, hand: [30, -100] };
-const glove = { t: 1, goon: null, wi: 0, ci: 0, head: false, tx: 40, ty: -100, miss: false };
+const glove = { face: false, t: 1, goon: null, wi: 0, ci: 0, head: false, tx: 40, ty: -100, miss: false };
 
 function resize() {
   fitView();
@@ -1106,7 +1150,7 @@ function layout(g) {
   }
   mcv.font = FONT(SIGN_FONT);
   const space = mcv.measureText(' ').width;
-  const maxW = g.kind === 'boss' ? 250 : 1e9;
+  const maxW = g.maxW || 1e9;
   const lines = [[]];
   let w = 0;
   for (let wi = 0; wi < g.words.length; wi++) {
@@ -1155,12 +1199,12 @@ const KIND = {
   runner: { scale: 0.84, slack: 1.45 },
   tank: { scale: 1.2, slack: 1.95 },
   balloon: { scale: 0.95, slack: 1.95 },
-  boss: { scale: 1.45, slack: 1.5 },
+  boss: { scale: 1.45, slack: 1.2 },
 };
 function wpmNowTarget() {
   const skill = skillNow();
   if (gauntlet) {
-    return Math.min(90, Math.max(17 + kos * 0.5, skill * 0.75 + kos * 0.25));
+    return Math.min(90, Math.max(18 + kos * 0.8, skill * 0.75 + kos * 0.4));
   }
   const b = BOUTS[bout];
   const ramp = b.wpm * (1 + 0.35 * Math.min(1, kos / Math.max(1, total - 1)));
@@ -1171,7 +1215,7 @@ function spawn(spec) {
   const edge = Math.max(470, visHalf() + 50);
   const chars = spec.words.join(' ').length;
   const cps = (wpmNowTarget() * 5) / 60;
-  const T = (chars / cps) * k.slack + (spec.kind === 'boss' ? 4 : 1.8);
+  const T = (chars / cps) * k.slack + (spec.kind === 'boss' ? 2 : 1.8);
   const reachD = 44 * k.scale + 14;
   const g = {
     id: nextId++, kind: spec.kind, words: spec.words, wi: 0, ci: 0, side: spec.side, scale: k.scale,
@@ -1180,18 +1224,39 @@ function spawn(spec) {
     clean: true, pole: 30 + ((nextId * 7) % 3) * 13, sign: null, hitDone: false,
   };
   if (spec.kind === 'balloon') {
-    g.y = -150;
+    g.y = -90;
     g.state = 'float';
-    g.x = spec.side * (edge * 0.75);
-    g.speed *= 0.95;
   }
   if (spec.kind === 'boss') {
-    g.pole = 46;
-    popup('Boss!', 'KNOCK OFF EVERY WORD', true, clamp(g.x, -300, 300), -220);
+    g.def = spec.def || pick(BOSSES, rng);
+    g.maxW = Math.min(470, visHalf() * 2 - 140);
+    g.wounds = [];
+    g.x = spec.side * Math.min(visHalf() - 70, 300);
+    g.y = -720;
+    g.vy = 0;
+    g.state = 'drop';
+    g.speed = (Math.abs(g.x) - reachD) / T;
+    g.bannerY = topWorld() - 140;
+    g.bannerV = 0;
+    g.swing = 0;
+    g.swingV = 0;
+    g.throwT = 2.2;
+    g.throwA = 0;
+    popup('Boss!', g.def.name.toUpperCase(), true, 0, -150);
     SND.bell();
+  } else if (rng() < 0.4) {
+    g.hat = pick(GOON_HATS, rng);
+    g.hc = pick(HAT_COLS, rng);
   }
+  g.signCol = pick(SIGN_COLS, rng);
   goons.push(g);
   return g;
+}
+function topWorld() {
+  return toWorld(0, 0)[1];
+}
+function bannerAt() {
+  return VIEW.y0 + 22;
 }
 function liveGoons() {
   return goons.filter((g) => g.state !== 'ko');
@@ -1204,6 +1269,34 @@ function updateGoon(g, dt) {
   const dir = -g.side;
   g.st += dt;
   g.shakeT = Math.max(0, g.shakeT - dt);
+  if (g.kind === 'boss' && g.state !== 'ko') {
+    const want = bannerAt() + layout(g).H / 2;
+    g.bannerV += ((want - g.bannerY) * 120 - g.bannerV * 11) * dt;
+    g.bannerY += g.bannerV * dt;
+    g.swingV += (-g.swing * 40 - g.swingV * 3) * dt;
+    g.swing += g.swingV * dt;
+  }
+  if (g.state === 'drop') {
+    g.vy += 2600 * dt;
+    g.y = Math.min(0, g.y + g.vy * dt);
+    follow(g.body, G.wind, 17, dt);
+    if (g.y >= 0) {
+      g.state = 'land';
+      g.st = 0;
+      kick(280);
+      buzz(70);
+      dust(g.x, 0, 70, 16);
+      SND.ko(true);
+    }
+    return;
+  }
+  if (g.state === 'land') {
+    follow(g.body, g.st < 0.25 ? G.squat : G.stand, 14, dt);
+    if (g.st > 0.6) {
+      g.state = 'walk';
+    }
+    return;
+  }
   if (g.state === 'ko') {
     g.x += g.kvx * dt;
     g.y += g.kvy * dt;
@@ -1232,15 +1325,41 @@ function updateGoon(g, dt) {
   let want;
   if (g.state === 'float') {
     g.x += dir * g.speed * dt;
-    g.y += 26 * dt;
+    g.y += (-90 + Math.sin(clock * 2 + g.id) * 8 - g.y) * Math.min(1, dt * 1.6);
     want = Math.sin(clock * 3 + g.id) > 0 ? G.dangle : G.dangle2;
+    if (Math.abs(g.x) <= g.reachD + 70) {
+      g.state = 'dive';
+      g.vy = -80;
+      SND.whoosh();
+      popup('Incoming!', '', false, g.x - dir * 40, g.y + 20);
+    }
+  } else if (g.state === 'dive') {
+    g.vy += 1500 * dt;
+    g.y = Math.min(0, g.y + g.vy * dt);
+    g.x += dir * 160 * dt;
+    want = G.bonk;
     if (g.y >= 0) {
-      g.y = 0;
-      g.state = 'walk';
-      dust(g.x, 0, 30, 6);
-      SND.bowl();
+      g.state = 'bonk';
+      g.st = 0.3;
+      g.hitDone = false;
+      dust(g.x, 0, 30, 8);
+    }
+  } else if (g.state === 'walk' && g.throwA > 0) {
+    g.throwA -= dt;
+    want = g.throwA > 0.18 ? G.wind : G.bonk;
+    if (g.throwA <= 0.18 && !g.thrown) {
+      g.thrown = true;
+      throwShot(g);
     }
   } else if (g.state === 'walk') {
+    if (g.kind === 'boss' && mode === 'play') {
+      g.throwT -= dt;
+      if (g.throwT <= 0 && !shots.some((o) => o.live)) {
+        g.throwA = 0.42;
+        g.thrown = false;
+        g.throwT = throwGap();
+      }
+    }
     const step = g.speed * dt;
     g.x += dir * step;
     g.phase += step / (64 * g.scale);
@@ -1259,7 +1378,7 @@ function updateGoon(g, dt) {
     if (g.st > 0.62) {
       g.state = 'stun';
       g.st = 0;
-      g.kb += -dir * 820 * (g.kind === 'boss' ? 0.6 : 1);
+      g.kb += -dir * 820 * (g.kind === 'boss' ? 0.3 : 1);
     }
   } else if (g.state === 'stun') {
     want = G.hit;
@@ -1276,6 +1395,134 @@ function updateGoon(g, dt) {
   g.tiltV += ((tiltWant - g.tilt) * 260 - g.tiltV * 24) * dt;
   g.tilt += g.tiltV * dt;
   follow(g.body, want, g.state === 'bonk' ? 22 : 17, dt);
+}
+
+const SHOT_KINDS = ['boot', 'fish', 'pie', 'duck'];
+function throwGap() {
+  return clamp(4.4 - wpmNowTarget() / 18, 1.6, 3.6) * (0.8 + rng() * 0.4);
+}
+function throwShot(g) {
+  const pool = gauntlet ? 'abcdefghijklmnopqrstuvwxyz' : BOUTS[bout].pool;
+  const used = nextChar(g);
+  let ch = pick([...pool], rng);
+  for (let i = 0; i < 6 && ch === used; i++) {
+    ch = pick([...pool], rng);
+  }
+  const x0 = g.x - Math.sign(g.x) * 24, y0 = g.y - 120 * g.scale;
+  const x1 = Math.sign(g.x) * 14, y1 = -112;
+  const D = clamp(2.5 - wpmNowTarget() / 45, 1.25, 2.2);
+  const grav = 90;
+  shots.push({ live: true, ch, kind: pick(SHOT_KINDS, rng), x: x0, y: y0, vx: (x1 - x0) / D, vy: (y1 - y0) / D - 0.5 * grav * D, grav, t: 0, D, r: 0, vr: -Math.sign(g.x) * 7, boss: g });
+  SND.whoosh();
+}
+function updateShots(dt) {
+  for (let i = shots.length - 1; i >= 0; i--) {
+    const o = shots[i];
+    o.t += dt;
+    o.vy += o.grav * dt;
+    o.x += o.vx * dt;
+    o.y += o.vy * dt;
+    o.r += o.vr * dt;
+    if (o.live && o.t >= o.D) {
+      o.live = false;
+      o.vx = -o.vx * 0.3;
+      o.vy = -260;
+      bonkHero(null);
+      SND.bowl();
+    }
+    if (!o.live && (o.y > 300 || o.t > o.D + 3)) {
+      shots.splice(i, 1);
+    }
+  }
+}
+function hitShot(o) {
+  correct++;
+  o.live = false;
+  o.vx = -o.vx * 1.4;
+  o.vy = -420;
+  o.vr *= -2;
+  o.grav = 900;
+  glove.t = 0;
+  glove.goon = null;
+  glove.shot = o;
+  glove.aim = [o.x, o.y];
+  glove.miss = false;
+  glove.face = false;
+  hero.face = Math.sign(o.x) || hero.face;
+  hero.jabT = 0.11;
+  flyLetter(o.ch, o.x, o.y - 22, Math.sign(o.x) || 1);
+  SND.hit(3);
+  burst(o.x, o.y, 6);
+  popup(pick(['Blocked!', 'Nope!', 'Return!', 'Swat!'], rng), '', false, o.x, o.y - 40);
+}
+function drawShots() {
+  for (const o of shots) {
+    ctx.save();
+    ctx.translate(o.x, o.y);
+    ctx.save();
+    ctx.rotate(o.r);
+    drawThing(o.kind);
+    ctx.restore();
+    if (o.live) {
+      ctx.beginPath();
+      ctx.arc(0, -24, 12, 0, Math.PI * 2);
+      inkShape(COL.butterHi, 1.8);
+      ctx.fillStyle = COL.ink;
+      ctx.font = FONT(17);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(o.ch, 0, -23);
+    }
+    ctx.restore();
+  }
+}
+function drawThing(kind) {
+  ctx.lineJoin = 'round';
+  if (kind === 'boot') {
+    ctx.beginPath();
+    ctx.moveTo(-6, -11);
+    ctx.lineTo(3, -11);
+    ctx.lineTo(3, 0);
+    ctx.quadraticCurveTo(12, 0, 12, 6);
+    ctx.lineTo(-6, 6);
+    ctx.closePath();
+    inkShape('#8a5a2b', 1.6);
+  } else if (kind === 'fish') {
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 11, 6, 0, 0, Math.PI * 2);
+    inkShape('#93c5fd', 1.6);
+    ctx.beginPath();
+    ctx.moveTo(-9, 0);
+    ctx.lineTo(-17, -6);
+    ctx.lineTo(-17, 6);
+    ctx.closePath();
+    inkShape('#93c5fd', 1.6);
+    ctx.fillStyle = COL.ink;
+    ctx.beginPath();
+    ctx.arc(5, -1.5, 1.4, 0, Math.PI * 2);
+    ctx.fill();
+  } else if (kind === 'pie') {
+    ctx.beginPath();
+    ctx.ellipse(0, 2, 12, 4.5, 0, 0, Math.PI * 2);
+    inkShape('#e5b878', 1.6);
+    ctx.beginPath();
+    ctx.ellipse(0, -1, 9, 5, 0, Math.PI, Math.PI * 2);
+    ctx.closePath();
+    inkShape('#fff', 1.4);
+  } else {
+    ctx.beginPath();
+    ctx.ellipse(0, 2, 10, 6.5, 0, 0, Math.PI * 2);
+    inkShape(COL.butterHi, 1.6);
+    ctx.beginPath();
+    ctx.arc(6, -6, 5, 0, Math.PI * 2);
+    inkShape(COL.butterHi, 1.6);
+    ctx.beginPath();
+    ctx.moveTo(10, -6);
+    ctx.lineTo(15, -4.5);
+    ctx.lineTo(10, -3);
+    ctx.closePath();
+    inkShape('#f97316', 1.2);
+  }
 }
 
 function bonkHero(g) {
@@ -1311,6 +1558,11 @@ function typeChar(c) {
     activeT += Math.min(runTime - lastKeyT, 1);
   }
   lastKeyT = runTime;
+  const shot = shots.find((o) => o.live && o.ch === c);
+  if (shot) {
+    hitShot(shot);
+    return;
+  }
   if (target && (target.state === 'ko' || !goons.includes(target))) {
     target = null;
   }
@@ -1352,6 +1604,8 @@ function landLetter(g, c) {
   glove.ci = ci;
   glove.head = last;
   glove.miss = false;
+  glove.face = false;
+  glove.shot = null;
   glove.aim = last ? [g.x - dir * 10, g.y - 110 * g.scale] : [lx, ly + g.sign.h / 2 + 6];
   flyLetter(c, lx, ly, dir);
   if (last) {
@@ -1363,13 +1617,31 @@ function landLetter(g, c) {
   g.kb += dir * 70 * heavy;
   g.shakeT = 0.12;
   SND.hit(ci);
-  if (wordDone) {
+  if (wordDone && g.kind === 'boss') {
+    glove.face = true;
+    glove.aim = [g.x - dir * 12 * g.scale, g.y - 112 * g.scale];
+    if (g.wounds.length < WOUNDS.length) {
+      g.wounds.push(WOUNDS[g.wounds.length]);
+    }
+    g.swingV += dir * 3;
+    popup(pick(['Oof!', 'Ouch!', 'Bonk!', 'Ow!', 'Hey!', 'Rude!'], rng), '', false, g.x + (g.wounds.length % 2 ? -24 : 24), g.y - 175 * g.scale - (g.wounds.length % 3) * 22);
+  } else if (g.kind === 'boss') {
+    g.swingV += dir * 0.6;
+  }
+  if (wordDone && g.kind === 'boss') {
+    g.wi++;
+    g.ci = 0;
+    g.kb += dir * 90;
+    g.shakeT = 0.3;
+    SND.bowl();
+    burst(lx, ly, 6);
+  } else if (wordDone) {
     g.wi++;
     g.ci = 0;
     g.kb += dir * 300 * heavy;
     g.state = 'stun';
     g.st = 0.2;
-    target = g.kind === 'boss' ? g : null;
+    target = null;
     SND.bowl();
     burst(lx, ly, 6);
   }
@@ -1401,18 +1673,32 @@ function knockOut(g) {
   SND.ko(boss);
   kick(boss ? 260 : 90);
   buzz(boss ? 60 : 18);
-  if (g.sign) {
+  const hat = g.hat || (g.def && g.def.hat);
+  if (hat) {
+    debris.push({ hat, hc: g.def ? g.def.hc : g.hc, x: g.x, y: g.y - 128 * g.scale, s: g.scale, vx: dir * (120 + Math.random() * 80), vy: -520, r: 0, vr: dir * 9, t: 0 });
+    g.hat = null;
+  }
+  if (g.sign && boss) {
+    debris.push({ banner: true, x: g.sign.x, y: g.sign.y, w: g.sign.w, h: g.sign.h, col: '#fff', vx: dir * 60, vy: -120, r: g.sign.rot, vr: dir * 1.5, t: 0 });
+  } else if (g.sign) {
     if (g.kind === 'balloon') {
       SND.pop();
       burst(g.sign.x, g.sign.y, 16);
     } else {
-      debris.push({ x: g.sign.x, y: g.sign.y, w: g.sign.w, h: g.sign.h, pole: g.pole, vx: dir * (180 + Math.random() * 120), vy: -380, r: g.sign.rot, vr: dir * (6 + Math.random() * 6), t: 0 });
+      debris.push({ x: g.sign.x, y: g.sign.y, w: g.sign.w, h: g.sign.h, pole: g.pole, col: g.signCol, vx: dir * (180 + Math.random() * 120), vy: -380, r: g.sign.rot, vr: dir * (6 + Math.random() * 6), t: 0 });
     }
   }
   if (boss) {
+    for (const o of shots) {
+      if (o.live) {
+        o.live = false;
+        o.vy = -200;
+      }
+    }
     slow = 0.3;
-    slowT = 0.7;
-    popup('Knockout!', 'BOSS DOWN', true, g.x, -200);
+    slowT = 0.9;
+    popup('Knockout!', g.def.name.toUpperCase() + ' IS DOWN', true, 0, -170);
+    burst(g.x, g.y - 110 * g.scale, 24);
     SND.win();
   } else if (combo > 0 && combo % 5 === 0) {
     popup(`${combo} clean`, 'NO TYPOS', true, g.x, -170);
@@ -1429,6 +1715,8 @@ function miss(g, c) {
   SND.typo();
   glove.t = 0;
   glove.miss = true;
+  glove.face = false;
+  glove.shot = null;
   glove.goon = g;
   glove.head = false;
   if (g) {
@@ -1437,6 +1725,10 @@ function miss(g, c) {
     hero.face = dir;
     glove.aim = [g.x * 0.5, -78];
     g.kb -= dir * 150 * (g.kind === 'boss' ? 0.5 : 1);
+    if (g.kind === 'boss' && g.ci > 0) {
+      g.ci = 0;
+      popup(pick(['Ha!', 'Missed!', 'Hah!', 'Again!'], rng), 'WORD BACK', false, g.x, g.y - 190 * g.scale);
+    }
     g.shakeT = 0.3;
     const [lx, ly] = charWorld(g, g.wi, g.ci);
     letters.push({ ch: c, x: lx, y: ly - 26, vx: 0, vy: -40, r: 0, vr: 0, t: 0, life: 0.55, col: COL.accent });
@@ -1470,6 +1762,8 @@ function startRun(i) {
   activeT = 0;
   lastKeyT = -1;
   wordsDone = 0;
+  calmT = 0;
+  bossAt = 20;
   runTime = 0;
   spawnT = 1.2;
   clearT = -1;
@@ -1477,6 +1771,7 @@ function startRun(i) {
   slowT = 0;
   letters.length = 0;
   debris.length = 0;
+  shots.length = 0;
   popups.length = 0;
   hero.body = newBody(P.guard);
   hero.state = 'ok';
@@ -1768,8 +2063,20 @@ addEventListener('contextmenu', (e) => e.preventDefault());
 
 const botRng = mulberry(11);
 let botAt = 0, botFocus = null;
+let botShot = null;
 function bot() {
   if (runTime < botAt) {
+    return;
+  }
+  const shot = shots.find((o) => o.live && o.t > 0.35);
+  if (shot) {
+    if (botShot !== shot) {
+      botShot = shot;
+      botAt = runTime + 0.25 + Math.abs(gauss(botRng)) * 0.25;
+      return;
+    }
+    typeChar(botRng() < 0.05 ? 'q' : shot.ch);
+    botAt = runTime + 0.3;
     return;
   }
   let g = target && target.state !== 'ko' ? target : null;
@@ -1812,6 +2119,7 @@ function update(rawDt) {
   for (const g of goons) {
     updateGoon(g, dt);
   }
+  updateShots(dt);
   goons = goons.filter((g) => !(g.state === 'ko' && (g.y > 400 || Math.abs(g.x) > visHalf() + 300)));
   if (mode !== 'play') {
     return;
@@ -1820,6 +2128,10 @@ function update(rawDt) {
   hero.inv = Math.max(0, hero.inv - dt);
   if (BOT) {
     bot();
+  }
+  if (gauntlet && !queue.length && kos >= bossAt) {
+    bossAt += 20;
+    queue.push({ kind: 'boss', words: pick(ENDLESS_BOSS, rng).split(' '), side: rng() < 0.5 ? 1 : -1 });
   }
   if (gauntlet && !queue.length) {
     const kinds = kos < 6 ? {} : { runner: 0.2, tank: kos > 14 ? 0.15 : 0, balloon: kos > 22 ? 0.15 : 0 };
@@ -1830,8 +2142,11 @@ function update(rawDt) {
   const b = BOUTS[bout];
   const cap = gauntlet ? Math.min(5, 2 + Math.floor(kos / 10)) : b.cap;
   const alive = liveGoons().length;
+  const bossNext = queue.length && queue[0].kind === 'boss';
+  const bossUp = liveGoons().some((g) => g.kind === 'boss');
+  calmT = alive ? 0 : calmT + dt;
   spawnT -= dt;
-  if (queue.length && alive < cap && (spawnT <= 0 || alive === 0)) {
+  if (queue.length && alive < cap && !bossUp && (bossNext ? calmT > 0.8 : spawnT <= 0 || alive === 0)) {
     const spec = queue.shift();
     spawn(spec);
     const cps = (wpmNowTarget() * 5) / 60;
@@ -1900,7 +2215,7 @@ function drawGoon(g) {
   const flip = g.x > 0;
   const s = g.scale;
   const boss = g.kind === 'boss';
-  const opts = { flip, scale: s, goon: true, ink: boss ? '#555' : GOON.ink, far: boss ? '#a8a8a8' : GOON.far, dizzy: g.state === 'ko' || g.state === 'stun' };
+  const opts = { flip, scale: s, goon: true, ink: boss ? g.def.col : GOON.ink, far: boss ? tint(g.def.col, 0.45) : GOON.far, dizzy: g.state === 'ko' || g.state === 'stun', deco: () => drawDeco(g) };
   if (g.state === 'ko') {
     ctx.save();
     ctx.translate(g.x, g.y - 60 * s);
@@ -1919,7 +2234,10 @@ function drawGoon(g) {
   const lay = layout(g);
   const shk = g.shakeT > 0 ? Math.sin(g.shakeT * 70) * 3 * (g.shakeT / 0.3) : 0;
   const target_ = target === g;
-  if (g.kind === 'balloon') {
+  const fill = target_ ? COL.butter : g.signCol || '#fff';
+  if (boss) {
+    drawBanner(g, target_);
+  } else if (g.kind === 'balloon') {
     const bx = hand[0] + shk, by = hand[1] - 52 - lay.H / 2;
     ctx.strokeStyle = COL.ink;
     ctx.lineWidth = 1.2;
@@ -1929,13 +2247,13 @@ function drawGoon(g) {
     ctx.stroke();
     ctx.beginPath();
     ctx.ellipse(bx, by, lay.W / 2 + 6, lay.H / 2 + 7, 0, 0, Math.PI * 2);
-    inkShape(target_ ? COL.butter : '#fff', 1.8);
+    inkShape(fill, 1.8);
     ctx.beginPath();
     ctx.moveTo(bx - 4, by + lay.H / 2 + 11);
     ctx.lineTo(bx, by + lay.H / 2 + 6);
     ctx.lineTo(bx + 4, by + lay.H / 2 + 11);
     ctx.closePath();
-    inkShape(target_ ? COL.butter : '#fff', 1.4);
+    inkShape(fill, 1.4);
     g.sign = { x: bx, y: by, rot: 0, w: lay.W, h: lay.H };
   } else {
     const L = g.pole;
@@ -1953,11 +2271,224 @@ function drawGoon(g) {
     ctx.translate(cx, cy);
     ctx.rotate(rot);
     roundRect(-lay.W / 2, -lay.H / 2, lay.W, lay.H, 6);
-    inkShape(target_ ? COL.butter : '#fff', 1.8);
+    inkShape(fill, 1.8);
     ctx.restore();
     g.sign = { x: cx, y: cy, rot, w: lay.W, h: lay.H };
   }
   drawSignText(g);
+}
+
+function drawBannerCloth(w, h, fill, col) {
+  const tail = 22;
+  for (const sd of [-1, 1]) {
+    const x0 = sd * (w / 2 - 6), x1 = sd * (w / 2 + tail);
+    ctx.beginPath();
+    ctx.moveTo(x0, -h / 2 + 8);
+    ctx.lineTo(x1, -h / 2 + 8);
+    ctx.lineTo(x1 - sd * 9, 4);
+    ctx.lineTo(x1, h / 2 + 8);
+    ctx.lineTo(x0, h / 2 + 8);
+    ctx.closePath();
+    inkShape(col ? tint(col, 0.55) : '#e5e5e5', 1.8);
+  }
+  roundRect(-w / 2, -h / 2, w, h, 4);
+  inkShape(fill, 2);
+}
+function drawBanner(g, hot) {
+  const lay = layout(g);
+  const W = lay.W + 16, H = lay.H + 16;
+  const cx = Math.sin(g.swing) * 6, cy = g.bannerY, rot = g.swing * 0.08;
+  const top = topWorld() - 10;
+  ctx.strokeStyle = COL.ink;
+  ctx.lineWidth = 1.4;
+  for (const sd of [-1, 1]) {
+    const ax = cx + sd * (W / 2 - 20) * Math.cos(rot), ay = cy + sd * (W / 2 - 20) * Math.sin(rot) - H / 2;
+    line(ax, ay, sd * (W / 2 - 4), top);
+  }
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(rot);
+  drawBannerCloth(W, H, hot ? COL.butterSoft : '#fff', g.def.col);
+  ctx.font = FONT(12);
+  ctx.letterSpacing = '2px';
+  const name = g.def.name.toUpperCase();
+  const nw = ctx.measureText(name).width + 22;
+  roundRect(-nw / 2, -H / 2 - 13, nw, 22, 7);
+  inkShape(g.def.col, 1.6);
+  ctx.fillStyle = '#fff';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(name, 1, -H / 2 - 1.5);
+  ctx.letterSpacing = '0px';
+  ctx.restore();
+  g.sign = { x: cx - Math.sin(rot) * 6, y: cy + Math.cos(rot) * 6, rot, w: W, h: H - 12 };
+}
+
+function drawHat(kind, hc) {
+  const R = HEAD_R;
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  if (kind === 'cap') {
+    ctx.beginPath();
+    ctx.arc(0, -1.5, R + 0.8, Math.PI, Math.PI * 2);
+    ctx.closePath();
+    inkShape(hc, 1.6);
+    ctx.beginPath();
+    ctx.moveTo(R * 0.3, -2);
+    ctx.quadraticCurveTo(R + 4, -3.5, R + 8, -0.5);
+    ctx.lineTo(R * 0.3, -0.2);
+    ctx.closePath();
+    inkShape(hc, 1.6);
+  } else if (kind === 'beanie') {
+    ctx.beginPath();
+    ctx.arc(0, -1.5, R + 0.9, Math.PI, Math.PI * 2);
+    ctx.closePath();
+    inkShape(hc, 1.6);
+    roundRect(-R - 1.5, -4, 2 * R + 3, 4.5, 2);
+    inkShape(tint(hc, 0.45), 1.4);
+    ctx.beginPath();
+    ctx.arc(0, -R - 4.5, 3.2, 0, Math.PI * 2);
+    inkShape('#fff', 1.4);
+  } else if (kind === 'tophat') {
+    roundRect(-R + 1.5, -R - 15, 2 * R - 3, 15, 1.5);
+    inkShape(hc, 1.6);
+    ctx.fillStyle = COL.butterHi;
+    ctx.fillRect(-R + 2.3, -R - 4.5, 2 * R - 4.6, 3);
+    roundRect(-R - 4, -R - 1.5, 2 * R + 8, 3.2, 1.5);
+    inkShape(hc, 1.4);
+  } else if (kind === 'crown') {
+    ctx.beginPath();
+    ctx.moveTo(-R + 0.5, -R + 3);
+    ctx.lineTo(-R - 0.5, -R - 9);
+    ctx.lineTo(-R * 0.45, -R - 3);
+    ctx.lineTo(0, -R - 11);
+    ctx.lineTo(R * 0.45, -R - 3);
+    ctx.lineTo(R + 0.5, -R - 9);
+    ctx.lineTo(R - 0.5, -R + 3);
+    ctx.closePath();
+    inkShape(hc, 1.6);
+    ctx.beginPath();
+    ctx.arc(0, -R - 1.5, 1.6, 0, Math.PI * 2);
+    inkShape('#ef4444', 1);
+  } else if (kind === 'party') {
+    ctx.beginPath();
+    ctx.moveTo(-R + 1, -R + 4);
+    ctx.lineTo(R - 1, -R + 4);
+    ctx.lineTo(2, -R - 15);
+    ctx.closePath();
+    inkShape(hc, 1.6);
+    ctx.strokeStyle = COL.ink;
+    ctx.lineWidth = 1.2;
+    line(-R * 0.55, -R - 1, R * 0.45, -R - 3);
+    line(-R * 0.15, -R - 7, R * 0.3, -R - 8);
+    ctx.beginPath();
+    ctx.arc(2, -R - 16, 2.6, 0, Math.PI * 2);
+    inkShape(COL.butterHi, 1.3);
+  } else if (kind === 'chef') {
+    for (const [x, y, r] of [[-4.5, -R - 5, 5], [4.5, -R - 5, 5], [0, -R - 9, 5.6]]) {
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      inkShape('#fff', 1.5);
+    }
+    roundRect(-R + 0.5, -R - 3, 2 * R - 1, 6, 1.5);
+    inkShape('#fff', 1.5);
+  } else if (kind === 'cowboy') {
+    ctx.beginPath();
+    ctx.moveTo(-R + 1.5, -R + 2);
+    ctx.lineTo(-R + 2.5, -R - 8);
+    ctx.quadraticCurveTo(0, -R - 5, R - 2.5, -R - 8);
+    ctx.lineTo(R - 1.5, -R + 2);
+    ctx.closePath();
+    inkShape(hc, 1.6);
+    ctx.beginPath();
+    ctx.moveTo(-R - 8, -R - 1);
+    ctx.quadraticCurveTo(0, -R + 5, R + 8, -R - 1);
+    ctx.quadraticCurveTo(0, -R + 1.5, -R - 8, -R - 1);
+    ctx.closePath();
+    inkShape(hc, 1.6);
+  } else if (kind === 'viking') {
+    for (const sd of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(sd * (R - 1), -3);
+      ctx.quadraticCurveTo(sd * (R + 7), -5, sd * (R + 5), -R - 8);
+      ctx.quadraticCurveTo(sd * (R + 2), -R + 1, sd * (R - 3), -R + 2);
+      ctx.closePath();
+      inkShape('#f5f0e1', 1.4);
+    }
+    ctx.beginPath();
+    ctx.arc(0, -1, R + 1, Math.PI, Math.PI * 2);
+    ctx.closePath();
+    inkShape(hc, 1.6);
+  } else if (kind === 'pirate') {
+    ctx.beginPath();
+    ctx.ellipse(0, -R + 2, R + 7, 9, 0, Math.PI, Math.PI * 2);
+    ctx.closePath();
+    inkShape(hc, 1.6);
+    ctx.beginPath();
+    ctx.arc(0, -R - 2.5, 2, 0, Math.PI * 2);
+    ctx.fillStyle = '#fff';
+    ctx.fill();
+  } else if (kind === 'wizard') {
+    ctx.beginPath();
+    ctx.moveTo(-R - 1, -R + 3);
+    ctx.lineTo(R + 1, -R + 3);
+    ctx.quadraticCurveTo(2, -R - 8, -5, -R - 22);
+    ctx.closePath();
+    inkShape(hc, 1.6);
+    roundRect(-R - 4, -R + 1.5, 2 * R + 8, 3, 1.5);
+    inkShape(hc, 1.4);
+    ctx.fillStyle = COL.butterHi;
+    ctx.beginPath();
+    ctx.arc(1, -R - 6, 1.8, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+function plaster(x, y, rot, len) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rot);
+  roundRect(-len / 2, -1.9, len, 3.8, 1.6);
+  inkShape('#f4d9b0', 1);
+  ctx.restore();
+}
+function drawDeco(g) {
+  const R = HEAD_R;
+  for (const w of g.wounds || []) {
+    if (w === 'eye') {
+      ctx.strokeStyle = '#7c5aa6';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(3.4, -1, 3.4, 0, Math.PI * 2);
+      ctx.stroke();
+    } else if (w === 'plaster') {
+      plaster(-3.5, -R + 2.5, 0.7, 9);
+      plaster(-3.5, -R + 2.5, -0.7, 9);
+    } else if (w === 'bump' || w === 'bump2') {
+      const a = w === 'bump' ? -2.3 : -2.9;
+      ctx.beginPath();
+      ctx.arc(Math.cos(a) * (R + 1), Math.sin(a) * (R + 1), 2.8, 0, Math.PI * 2);
+      inkShape('#fecaca', 1.3);
+    } else if (w === 'cheek') {
+      plaster(3, 4.2, 0.35, 7);
+    } else if (w === 'plaster2') {
+      plaster(-R + 1.5, 1.5, 1.2, 7);
+      plaster(-R + 1.5, 1.5, -0.4, 7);
+    }
+  }
+  if (g.def && g.def.stache) {
+    ctx.beginPath();
+    ctx.moveTo(1.2, 3.4);
+    ctx.quadraticCurveTo(4.5, 1.6, 8.6, 3.2);
+    ctx.quadraticCurveTo(9.4, 5.4, 7.6, 5);
+    ctx.quadraticCurveTo(4.5, 3.6, 1.2, 5.2);
+    ctx.closePath();
+    ctx.fillStyle = COL.ink;
+    ctx.fill();
+  }
+  const hat = g.def ? g.def.hat : g.hat;
+  if (hat && !(g.def && g.state === 'ko')) {
+    drawHat(hat, g.def ? g.def.hc : g.hc);
+  }
 }
 
 function drawSignText(g) {
@@ -1996,6 +2527,18 @@ function drawDebris() {
     ctx.globalAlpha = clamp(2.5 - d.t, 0, 1);
     ctx.translate(d.x, d.y);
     ctx.rotate(d.r);
+    if (d.hat) {
+      ctx.scale(d.s, d.s);
+      ctx.translate(0, HEAD_R);
+      drawHat(d.hat, d.hc);
+      ctx.restore();
+      continue;
+    }
+    if (d.banner) {
+      drawBannerCloth(d.w, d.h, d.col);
+      ctx.restore();
+      continue;
+    }
     ctx.lineCap = 'round';
     ctx.strokeStyle = COL.ink;
     ctx.lineWidth = 4.2;
@@ -2004,7 +2547,7 @@ function drawDebris() {
     ctx.lineWidth = 1.8;
     line(0, d.h / 2 + 1, 0, d.h / 2 + d.pole - 1);
     roundRect(-d.w / 2, -d.h / 2, d.w, d.h, 6);
-    inkShape('#fff', 1.8);
+    inkShape(d.col || '#fff', 1.8);
     ctx.restore();
   }
 }
@@ -2020,8 +2563,14 @@ function drawGlove(hand, elbow, face) {
   if (ext > 0.001) {
     let tx, ty;
     const g = glove.goon;
-    if (glove.miss) {
+    if (glove.shot) {
+      tx = glove.shot.x;
+      ty = glove.shot.y;
+    } else if (glove.miss) {
       [tx, ty] = glove.aim;
+    } else if (glove.face && g) {
+      tx = g.x - Math.sign(g.x) * 12 * g.scale;
+      ty = g.y - 112 * g.scale;
     } else if (g && g.sign && g.state !== 'ko') {
       [tx, ty] = charWorld(g, glove.wi, glove.ci);
       ty += g.sign.h / 2 + 6;
@@ -2126,6 +2675,7 @@ function render() {
     }
   }
   drawDebris();
+  drawShots();
   drawBits();
   drawLetters();
   drawPopups(left, right);
