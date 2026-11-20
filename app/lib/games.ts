@@ -56,6 +56,15 @@ const allGames: Game[] = [
     controls: 'hold',
   },
   {
+    slug: 'crossing',
+    name: 'Keep Crossing',
+    tagline: 'Hop across, every zone is stranger than the last',
+    description:
+      'Hop a stick figure across roads, rivers, rail tracks and frozen lakes while a giant eraser rubs out the page behind you. Every 24 rows you reach a new zone, from a duck pond to a night market to the moon, with mystery boxes, parades and UFOs along the way. One bonk and the run is over.',
+    addedAt: '2026-11-20',
+    controls: 'swipe',
+  },
+  {
     slug: 'typing',
     name: 'Type Fight',
     tagline: "Type the word on a goon's sign to knock it out",
