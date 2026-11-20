@@ -103,7 +103,7 @@
   #overlay {
     position: fixed; inset: 0; display: grid; place-items: center; padding: 20px;
     padding-top: max(20px, env(safe-area-inset-top, 0px)); padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
-    background: rgba(255, 255, 255, .62);
+    background: rgba(20, 22, 26, .24);
     opacity: 0; pointer-events: none; transition: opacity .3s ease; overflow-y: auto; scrollbar-width: none;
   }
   #overlay::-webkit-scrollbar { display: none; }
@@ -134,13 +134,15 @@
     .btn.ghost:hover { background: #ececec; }
   }
   .btn svg { width: 19px; height: 19px; }
-  .foot { text-align: center; color: var(--soft); font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .foot { text-align: center; color: var(--soft); font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; margin-top: 22px; }
   .foot:empty { display: none; }
+  .exit { display: block; width: fit-content; margin: 18px auto 0; font-size: 14px; color: var(--soft); text-decoration: none; }
+  @media (hover: hover) { .exit:hover { color: var(--ink); } }
   .result { display: flex; align-items: flex-end; gap: 36px; margin: 18px 0 24px; }
   .result .label { margin-top: 8px; }
   .big { font-size: 64px; line-height: .8; font-variant-numeric: tabular-nums; display: block; }
   .mid { font-size: 32px; line-height: .9; font-variant-numeric: tabular-nums; }
-  .minis { display: flex; justify-content: space-between; margin: 0 0 28px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .minis { display: flex; justify-content: space-between; margin: 0 0 28px; }
   .minis .v { font-size: 22px; line-height: 1; font-variant-numeric: tabular-nums; }
   .minis .label { margin-top: 6px; }
   .stars { display: flex; gap: 10px; justify-content: center; margin: 22px 0 6px; }
@@ -247,6 +249,7 @@
       <button class="btn ghost" id="levelsBtn" aria-label="Levels" title="Levels"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg></button>
     </div>
     <div class="foot" id="startFoot"></div>
+    <a class="exit" href="/" target="_top">← All games</a>
   </div>
 
   <div class="card" id="winCard">
@@ -270,6 +273,7 @@
       <button class="btn ghost" id="winLevels" aria-label="Levels" title="Levels"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg></button>
     </div>
     <div class="foot" id="winFoot"></div>
+    <a class="exit" href="/" target="_top">← All games</a>
   </div>
 
   <div class="card" id="failCard">
@@ -286,6 +290,7 @@
       <button class="btn primary" id="againBtn"><span>Try again</span><kbd class="kbd-only">Space</kbd></button>
       <button class="btn ghost" id="failLevels" aria-label="Levels" title="Levels"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg></button>
     </div>
+    <a class="exit" href="/" target="_top">← All games</a>
   </div>
 
   <div class="card" id="endCard">
@@ -306,6 +311,7 @@
       <button class="btn primary" id="endAgain"><span>Play again</span><kbd class="kbd-only">Space</kbd></button>
       <button class="btn ghost" id="endLevels" aria-label="Levels" title="Levels"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.5"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.5"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.5"/></svg></button>
     </div>
+    <a class="exit" href="/" target="_top">← All games</a>
   </div>
 
   <div class="card wide" id="levelsCard">

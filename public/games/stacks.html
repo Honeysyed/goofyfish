@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Keep Stacking</title>
+<title>Crane Drop</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -76,7 +76,7 @@
   #height.record, #height.record #hM { color: var(--amber); }
   #hBoxes { display: inline-block; transform-origin: left bottom; }
   #hBoxes.bump { animation: bump .35s ease; }
-  .minis { display: flex; justify-content: space-between; margin: 0 0 28px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .minis { display: flex; justify-content: space-between; margin: 0 0 28px; }
   .minis .v { font-size: 22px; line-height: 1; font-variant-numeric: tabular-nums; }
   .minis .label { margin-top: 6px; }
   #streak {
@@ -103,7 +103,7 @@
 
   #overlay {
     position: fixed; inset: 0; display: grid; place-items: center; padding: 20px;
-    background: rgba(255, 255, 255, .6);
+    background: rgba(20, 22, 26, .24);
     opacity: 0; pointer-events: none; transition: opacity .3s ease; overflow-y: auto;
   }
   #overlay.on { opacity: 1; pointer-events: auto; }
@@ -134,8 +134,10 @@
   .btn.busy svg { display: none; }
   .btn.busy::after { content: ''; width: 17px; height: 17px; border-radius: 50%; border: 2px solid var(--faint); border-top-color: var(--ink); animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .foot { text-align: center; color: var(--soft); font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .foot { text-align: center; color: var(--soft); font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; margin-top: 22px; }
   .foot:empty { display: none; }
+  .exit { display: block; width: fit-content; margin: 18px auto 0; font-size: 14px; color: var(--soft); text-decoration: none; }
+  @media (hover: hover) { .exit:hover { color: var(--ink); } }
   .result { display: flex; align-items: flex-end; gap: 36px; margin: 22px 0 24px; }
   .result .label { margin-top: 8px; }
   #endScore { font-size: 72px; line-height: .8; font-variant-numeric: tabular-nums; display: block; }
@@ -177,13 +179,14 @@
 <div id="overlay" class="on">
   <div class="card show" id="startCard">
     <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13.5h14v7H5z"/><path d="M7 6.5h10v7H7z"/><path d="M10.6 6.5v2.6h2.8V6.5"/><path d="M12 3.5v-1"/></svg></div>
-    <h1 class="title">Keep stacking</h1>
+    <h1 class="title">Crane drop</h1>
     <div class="keys"><kbd>Tap</kbd> to drop the swinging box</div>
     <p class="tag">Stack as high as you can. Drop one and it&rsquo;s over.</p>
     <div class="actions">
       <button class="btn primary" id="playBtn"><span>Play</span><kbd class="kbd-only">Space</kbd></button>
     </div>
     <div class="foot" id="startFoot"></div>
+    <a class="exit" href="/" target="_top">← All games</a>
   </div>
   <div class="card" id="endCard">
     <div class="row">
@@ -204,6 +207,7 @@
       <button class="btn ghost" id="shareBtn" aria-label="Download image" title="Download image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></button>
     </div>
     <div class="foot" id="endFoot"></div>
+    <a class="exit" href="/" target="_top">← All games</a>
   </div>
 </div>
 
@@ -2291,7 +2295,7 @@ function shareCanvas(res) {
   ctx.fillStyle = COL.faint;
   ctx.font = font(26);
   ctx.letterSpacing = '3px';
-  ctx.fillText('KEEP STACKING', 84, 1196);
+  ctx.fillText('CRANE DROP', 84, 1196);
   ctx.letterSpacing = '0px';
 
   const last = res.tower[res.tower.length - 1];

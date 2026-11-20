@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>Keep Chopping</title>
+<title>Timber</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -117,7 +117,7 @@
 
   #overlay {
     position: fixed; inset: 0; display: grid; place-items: center; padding: 20px;
-    background: rgba(255, 255, 255, .6);
+    background: rgba(20, 22, 26, .24);
     opacity: 0; pointer-events: none; transition: opacity .3s ease; overflow-y: auto;
   }
   #overlay.on { opacity: 1; pointer-events: auto; }
@@ -148,14 +148,16 @@
   .btn.busy svg { display: none; }
   .btn.busy::after { content: ''; width: 17px; height: 17px; border-radius: 50%; border: 2px solid var(--faint); border-top-color: var(--ink); animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .foot { text-align: center; color: var(--soft); font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .foot { text-align: center; color: var(--soft); font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; margin-top: 22px; }
   .foot:empty { display: none; }
+  .exit { display: block; width: fit-content; margin: 18px auto 0; font-size: 14px; color: var(--soft); text-decoration: none; }
+  @media (hover: hover) { .exit:hover { color: var(--ink); } }
   #endWhere { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .result { display: flex; align-items: flex-end; gap: 36px; margin: 22px 0 24px; }
   .result .label { margin-top: 8px; }
   #endLogs { font-size: 72px; line-height: .8; font-variant-numeric: tabular-nums; display: block; }
   #endScore { font-size: 32px; line-height: .9; font-variant-numeric: tabular-nums; }
-  .minis { display: flex; justify-content: space-between; margin: 0 0 28px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .minis { display: flex; justify-content: space-between; margin: 0 0 28px; }
   .minis .v { font-size: 22px; line-height: 1; font-variant-numeric: tabular-nums; }
   .minis .label { margin-top: 6px; }
   #toast {
@@ -199,7 +201,7 @@
 <div id="overlay" class="on">
   <div class="card show" id="startCard">
     <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20.5 14.6 8.4"/><path d="M12.2 5.6c1.9-2.3 4.8-3.1 7.4-2.4.6 2.6-.3 5.5-2.6 7.3z"/></svg></div>
-    <h1 class="title">Keep chopping</h1>
+    <h1 class="title">Timber</h1>
     <div class="keys kbd-only"><kbd>&larr;</kbd><kbd>&rarr;</kbd> chop · hold <kbd>Space</kbd> to sharpen</div>
     <div class="keys touch-only"><kbd>Tap</kbd> a side to chop · <kbd>Hold</kbd> to sharpen</div>
     <p class="tag">Duck the branches and beat the clock. Your axe dulls as you go. Sharpening is quick, but the clock keeps ticking.</p>
@@ -207,6 +209,7 @@
       <button class="btn primary" id="playBtn"><span>Chop</span><kbd class="kbd-only">Space</kbd></button>
     </div>
     <div class="foot" id="startFoot"></div>
+    <a class="exit" href="/" target="_top">← All games</a>
   </div>
   <div class="card" id="endCard">
     <div class="row">
@@ -227,6 +230,7 @@
       <button class="btn ghost" id="shareBtn" aria-label="Download image" title="Download image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></button>
     </div>
     <div class="foot" id="endFoot"></div>
+    <a class="exit" href="/" target="_top">← All games</a>
   </div>
 </div>
 
@@ -2959,7 +2963,7 @@ function shareCanvas(res) {
   ctx.fillStyle = COL.faint;
   ctx.font = font(26);
   ctx.letterSpacing = '3px';
-  ctx.fillText('KEEP CHOPPING', 84, 1196);
+  ctx.fillText('TIMBER', 84, 1196);
   ctx.letterSpacing = '0px';
 
   const sc = 1.7, ground = 1250;

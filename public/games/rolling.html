@@ -76,7 +76,7 @@
   #hSize { display: inline-block; transform-origin: left bottom; }
   #hSize.bump { animation: bump .35s ease; }
   #distLabel { font-variant-numeric: tabular-nums; }
-  .minis { display: flex; justify-content: space-between; margin: 0 0 28px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .minis { display: flex; justify-content: space-between; margin: 0 0 28px; }
   .minis .v { font-size: 22px; line-height: 1; font-variant-numeric: tabular-nums; }
   .minis .label { margin-top: 6px; }
   #streak {
@@ -102,7 +102,7 @@
   #overlay {
     position: fixed; inset: 0; display: grid; place-items: center; padding: 20px;
     padding-top: max(20px, env(safe-area-inset-top, 0px)); padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
-    background: rgba(255, 255, 255, .6);
+    background: rgba(20, 22, 26, .24);
     opacity: 0; pointer-events: none; transition: opacity .3s ease; overflow-y: auto;
   }
   #overlay.on { opacity: 1; pointer-events: auto; }
@@ -133,8 +133,10 @@
   .btn.busy svg { display: none; }
   .btn.busy::after { content: ''; width: 17px; height: 17px; border-radius: 50%; border: 2px solid var(--faint); border-top-color: var(--ink); animation: spin .7s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
-  .foot { text-align: center; color: var(--soft); font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; margin-top: 22px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .foot { text-align: center; color: var(--soft); font-size: 13px; line-height: 1.5; font-variant-numeric: tabular-nums; margin-top: 22px; }
   .foot:empty { display: none; }
+  .exit { display: block; width: fit-content; margin: 18px auto 0; font-size: 14px; color: var(--soft); text-decoration: none; }
+  @media (hover: hover) { .exit:hover { color: var(--ink); } }
   .result { display: flex; align-items: flex-end; gap: 36px; margin: 22px 0 24px; }
   .result .label { margin-top: 8px; }
   #endScore { font-size: 72px; line-height: .8; font-variant-numeric: tabular-nums; display: block; }
@@ -225,6 +227,7 @@
       <button class="btn ghost" id="bookBtn" aria-label="Sticker book" title="Sticker book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M9 8h7"/></svg></button>
     </div>
     <div class="foot" id="startFoot"></div>
+    <a class="exit" href="/" target="_top">← All games</a>
   </div>
   <div class="card" id="endCard">
     <div class="row">
@@ -248,6 +251,7 @@
       <button class="btn ghost" id="bookBtn2" aria-label="Sticker book" title="Sticker book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/><path d="M9 8h7"/></svg></button>
     </div>
     <div class="foot" id="endFoot"></div>
+    <a class="exit" href="/" target="_top">← All games</a>
   </div>
 </div>
 

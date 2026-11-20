@@ -12,7 +12,7 @@ export type Game = {
 const allGames: Game[] = [
   {
     slug: 'punching',
-    name: 'Keep Punching',
+    name: 'Goon Rush',
     tagline: 'Goons from both sides, tap a side to strike',
     description:
       'Goons come from both sides. Tap a side to strike, jump the sweeps and barrels, punch bottles back, and slam the floor when the crowd piles up. Flying kicks, clones, counters and banana peels.',
@@ -30,7 +30,7 @@ const allGames: Game[] = [
   },
   {
     slug: 'chopping',
-    name: 'Keep Chopping',
+    name: 'Timber',
     tagline: 'Duck the branches, keep your axe sharp',
     description:
       'A little chopping game. Tap left or right to chop and duck the branches before the clock runs out. Your axe dulls as you go, and sharpening is quick but the clock keeps ticking.',
@@ -39,7 +39,7 @@ const allGames: Game[] = [
   },
   {
     slug: 'stacks',
-    name: 'Keep Stacking',
+    name: 'Crane Drop',
     tagline: 'Stack as high as you can, one drop and it is over',
     description:
       'A little stacking game. A crane swings each box over your tower: tap to drop it. Stack as high as you can; the first box that falls ends the run.',
@@ -56,8 +56,17 @@ const allGames: Game[] = [
     controls: 'hold',
   },
   {
+    slug: 'planks',
+    name: 'Chop Stack',
+    tagline: 'Drop the plank, whatever hangs over gets chopped',
+    description:
+      'Planks slide back and forth over your tower. Tap to drop one, and whatever hangs over gets chopped off. Land it dead on and the tower grows back a little. Miss completely and the run is over.',
+    addedAt: '2026-11-20',
+    controls: 'tap',
+  },
+  {
     slug: 'crossing',
-    name: 'Keep Crossing',
+    name: 'Hop Across',
     tagline: 'Hop across, every zone is stranger than the last',
     description:
       'Hop a stick figure across roads, rivers, rail tracks and frozen lakes while a giant eraser rubs out the page behind you. Every 24 rows you reach a new zone, from a duck pond to a night market to the moon, with mystery boxes, parades and UFOs along the way. One bonk and the run is over.',
@@ -76,7 +85,7 @@ const allGames: Game[] = [
   },
   {
     slug: 'bopping',
-    name: 'Keep Bopping',
+    name: 'Keep It Up',
     tagline: "Bop the balloon, don't let it touch the floor",
     description:
       "Tap where to hop and bop the balloon back up before it touches the floor. More balloons join in and every bop counts for each one in the air. Gusts blow through the window, and a goon throws darts that you can block by jumping in the way.",
@@ -85,7 +94,7 @@ const allGames: Game[] = [
   },
   {
     slug: 'stomping',
-    name: 'Keep Stomping',
+    name: 'Floor Is Spikes',
     tagline: 'The floor is spikes, stay up on their heads',
     description:
       'The floor is spikes. Bounce from head to head to stay in the air, chain stomps for a multiplier, and outrun the bramble wall. Springboards, bird flocks, balloons and a Big Goon boss along the way.',
@@ -103,7 +112,7 @@ const allGames: Game[] = [
   },
   {
     slug: 'slicing',
-    name: 'Keep Slicing',
+    name: 'Picnic Panic',
     tagline: 'Slice the picnic before it spoils',
     description:
       'A little slicing game. Swipe to slice picnic food tossed into the air before it spoils, let spoiled food fall, and keep clear of wasps and cutlery. Drop fresh food or cut a spoiled one and you lose a plate.',

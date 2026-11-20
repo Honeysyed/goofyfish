@@ -185,6 +185,8 @@
   @keyframes slam { from { transform: translateY(-16px) rotate(-20deg) scale(.4); opacity: 0; } }
   .note { margin: 0; color: var(--soft); font-size: 14px; line-height: 1.5; }
   .card .btns .pb { flex: 1; }
+  .card .exit { align-self: center; font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--soft); text-decoration: none; }
+  .card .exit:hover { color: var(--ink); }
 
   @media (max-width: 520px) {
     .pb .lbl { display: none; }
@@ -257,6 +259,7 @@
       <button class="pb" id="retryBtn">Tweak line</button>
       <button class="pb run" id="nextBtn">Next level</button>
     </div>
+    <a class="exit" href="/" target="_top">← All games</a>
   </div>
 </div>
 

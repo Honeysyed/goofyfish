@@ -72,7 +72,7 @@
 
   #overlay {
     position: fixed; inset: 0; display: grid; place-items: center; padding: 20px;
-    background: rgba(255, 255, 255, .6);
+    background: rgba(20, 22, 26, .24);
     opacity: 0; pointer-events: none; transition: opacity .3s ease; overflow-y: auto;
   }
   #overlay.on { opacity: 1; pointer-events: auto; }
@@ -98,8 +98,10 @@
   .btn.primary kbd { background: rgba(255, 255, 255, .55); color: #92400e; box-shadow: none; }
   .btn.ghost { width: 50px; flex: none; background: var(--chip); box-shadow: 0 0 0 1px rgba(0, 0, 0, .05); }
   .btn svg { width: 19px; height: 19px; }
-  .foot { text-align: center; color: var(--soft); font-size: 13px; line-height: 1.5; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+  .foot { text-align: center; color: var(--soft); font-size: 13px; line-height: 1.5; margin-top: 20px; }
   .foot:empty { display: none; }
+  .exit { display: block; width: fit-content; margin: 18px auto 0; font-size: 14px; color: var(--soft); text-decoration: none; }
+  @media (hover: hover) { .exit:hover { color: var(--ink); } }
 
 .levels { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin: 24px 0 0; }
   .lv {
@@ -195,6 +197,7 @@
       </div>
       <div class="foot" id="startFoot"></div>
     </div>
+    <a class="exit" href="/" target="_top">← All games</a>
   </div>
   <div class="card" id="endCard">
     <div class="row">
@@ -213,6 +216,7 @@
       <button class="btn ghost" id="shareBtn" aria-label="Download image" title="Download image"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></button>
     </div>
     <div class="foot" id="endFoot"></div>
+    <a class="exit" href="/" target="_top">← All games</a>
   </div>
 </div>
 <div id="toast"></div>

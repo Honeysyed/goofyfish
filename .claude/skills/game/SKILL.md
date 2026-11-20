@@ -45,7 +45,7 @@ Ask what game they have in mind. If they don't have one, pitch three short ideas
 - Works for a 6-year-old and a 40-year-old. Cartoon bonks only, no text-heavy rules.
 - Is original. Don't recreate an existing commercial game, its name, characters or levels.
 
-Look at `app/lib/games.ts` so the idea doesn't repeat an existing game. Name it like the others ("Keep Stacking", "Ten Balls", "Paper Glider", "Knockdown") and pick a short lowercase slug that isn't taken (`stacks`, `hoops`).
+Look at `app/lib/games.ts` so the idea doesn't repeat an existing game. Name it like the others ("Crane Drop", "Ten Balls", "Paper Glider", "Knockdown"). Only start a name with "Keep" when the game really is about keeping something going, like "Keep Rolling" or "Keep It Up". Pick a short lowercase slug that isn't taken (`stacks`, `hoops`).
 
 Once they pick, create the branch: `git checkout -b game/<slug>`.
 
