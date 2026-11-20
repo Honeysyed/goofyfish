@@ -7,6 +7,7 @@ export default defineConfig({
   srcDir: './app',
   outDir: './build/client',
   trailingSlash: 'never',
+  redirects: { '/bridging': '/typing' },
   build: { format: 'file' },
   server: { port: 5173 },
   devToolbar: { enabled: false },

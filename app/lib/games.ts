@@ -56,12 +56,12 @@ const allGames: Game[] = [
     controls: 'hold',
   },
   {
-    slug: 'bridging',
-    name: 'Keep Bridging',
-    tagline: 'Every word you type is a plank, keep it ahead of their feet',
+    slug: 'typing',
+    name: 'Type Fight',
+    tagline: "Type the word on a goon's sign to knock it out",
     description:
-      'A typing game. Every word you type lays a board under a stick figure who never stops walking. They keep pace with you, typos make them stumble, and if they reach the edge it is a splash. 25 lessons from f and j to full sentences, with a ghost of your best run to race, a hat to win in each lesson and an endless goose chase.',
-    addedAt: '2026-11-18',
+      "A typing game. Goons march in holding signs, and every letter you type knocks a letter off with a spring-loaded boxing glove. Finish the word to launch them, but a typo lets them lunge. Eleven levels from f and j to numbers and punctuation, each with a boss carrying a whole sentence, plus an endless mode.",
+    addedAt: '2026-11-19',
     controls: 'type',
     needs: 'keyboard',
   },
