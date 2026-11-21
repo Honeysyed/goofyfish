@@ -56,6 +56,15 @@ const allGames: Game[] = [
     controls: 'hold',
   },
   {
+    slug: 'slowmo',
+    name: 'Slow Mo Hop',
+    tagline: 'Spin in slow motion, drop feet first',
+    description:
+      'Tap to jump and time slows right down while you spin over a messy room. Tap again to drop onto laptops, lamps, books and ice creams, feet first. Landing on your head costs a life, and the floor ends the run.',
+    addedAt: '2026-11-21',
+    controls: 'tap',
+  },
+  {
     slug: 'planks',
     name: 'Chop Stack',
     tagline: 'Drop the plank, whatever hangs over gets chopped',
