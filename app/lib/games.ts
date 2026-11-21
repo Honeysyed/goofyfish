@@ -56,6 +56,15 @@ const allGames: Game[] = [
     controls: 'hold',
   },
   {
+    slug: 'gaps',
+    name: 'Mind the Gap',
+    tagline: 'He never stops running, draw the bridges',
+    description:
+      'A stick figure runs nonstop and you drag to draw the floor in front of him: bridges over gaps, ramps to jump, humps over goons and roofs against falling rocks. Ink is short, so neat lines build a combo. One wrong line and he goes over the edge.',
+    addedAt: '2026-11-21',
+    controls: 'draw',
+  },
+  {
     slug: 'slowmo',
     name: 'Slow Mo Hop',
     tagline: 'Spin in slow motion, drop feet first',
@@ -173,6 +182,7 @@ const allGames: Game[] = [
       'Draw a line, dodge the red boxes one beat at a time, and slide into the slot. A 20-level puzzle.',
     addedAt: '2026-09-27',
     controls: 'draw',
+    hidden: true,
   },
 ];
 
