@@ -45,16 +45,7 @@ Ask what game they have in mind. If they don't have one, pitch three short ideas
 - Works for a 6-year-old and a 40-year-old. Cartoon bonks only, no text-heavy rules.
 - Is original. Don't recreate an existing commercial game, its name, characters or levels.
 
-Then ask which figure style the game should use (skip this if their request already names one, like "doodle style"), and show them `.claude/skills/game/references/figure-styles.png` (also in the README):
-
-- **Classic**: the solid-head house hero (the default).
-- **Doodle**: big hollow round head with line eyes.
-- **Doodle shirt**: doodle in a team-coloured shirt, best for teams and crowds.
-- **Sketch**: wobbly hand-drawn pen lines.
-- **Chunky**: toy-like, with mitten hands and boots.
-- **Googly**: big head with googly eyes.
-
-If they don't mind, use Classic. Note the pick for step 3.
+Use the Classic figure style unless their request names another one (like "doodle style"); don't ask. Other styles are listed in the style guide.
 
 Look at `app/lib/games.ts` so the idea doesn't repeat an existing game. Name it like the others ("Crane Drop", "Ten Balls", "Paper Glider", "Knockdown"). Only start a name with "Keep" when the game really is about keeping something going, like "Keep Rolling" or "Keep It Up". Pick a short lowercase slug that isn't taken (`stacks`, `hoops`).
 
@@ -73,7 +64,7 @@ Copy `.claude/skills/game/template.html` to `public/games/<slug>.html` and repla
 
 **Reuse the shared pieces.** `.claude/skills/game/references/snippets.js` has everything the template uses, documented: the posed stick figure (`P` poses, `mk()` to make new ones, `Actor` to animate between them, `drawFigure()` with flip and grey "goon" colours), wobbly ground, ink shapes, popups that stay on screen, particles, screen shake, the sound engine and `fitView()`. Don't draw your own stick figure. For more patterns (chains, wind, cameras that follow the action, richer share images) read an existing game such as `public/games/stacks.html` or `public/games/bopping.html`.
 
-**Use the picked figure style.** Set `FIG_STYLE` (near the stick figure code) to `'classic'`, `'doodle'`, `'doodleshirt'`, `'sketch'`, `'chunky'` or `'googly'`. The style guide lists what each is good for, how to colour props, and patterns for games with many small figures (spacing, side-by-side melee, icons that fit).
+**Figure style.** Leave `FIG_STYLE` as `'classic'` unless the user named another style; then set it (near the stick figure code) to `'doodle'`, `'doodleshirt'`, `'sketch'`, `'chunky'` or `'googly'`. The style guide lists what each is good for, how to colour props, and patterns for games with many small figures (spacing, side-by-side melee, icons that fit).
 
 **Design for both screens from the start.** Pick a world size in `VIEW` that suits a laptop. On portrait phones `fitView()` shows at least `VIEW.minW` world units centred on `VIEW.focusX`, so set those so the action stays big and visible; things outside that slice should scroll, roll or fly into view rather than sit off-screen.
 

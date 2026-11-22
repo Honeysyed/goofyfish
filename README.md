@@ -29,11 +29,7 @@ Then describe your idea:
 make a goofyfish game where you keep a balloon in the air
 ```
 
-Claude builds it in the house style, tests it and draws its thumbnail. It asks which stick figure style you want:
-
-<img src="./.github/figure-styles.png" alt="Figure styles: Classic, Doodle, Doodle shirt, Sketch, Chunky and Googly" />
-
-Classic is the house hero. Doodle, Doodle shirt, Sketch, Chunky (toy-like) and Googly (faces) all use the same poses, so any game can use any of them. Name one in your idea (`a doodle shirt game where...`) or pick when asked. Play it, ask for changes, and when you're happy say so. It opens the pull request for you, and once it's merged your game is on the site.
+Claude builds it in the house style with the classic stick figure, tests it and draws its thumbnail. Play it, ask for changes, and when you're happy say so. It opens the pull request for you, and once it's merged your game is on the site.
 
 What makes a goofyfish game:
 
