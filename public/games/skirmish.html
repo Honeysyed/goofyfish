@@ -3458,6 +3458,35 @@ function bomberBlow(u) {
   explode(u.x, u.y, u.team, u.T.dmg, u.T.splash, { fire: 4, wall: 90, knock: 140, src: u });
   kill(u, false);
 }
+// A melee fighter hits whatever goon is already in reach instead of shoving past it toward its chosen target.
+function foeInReach(u) {
+  let best = null, bd = 1e9;
+  for (const v of units) {
+    if (v.dead || v.team === u.team || !meleeReach(u, v)) {
+      continue;
+    }
+    const d = Math.abs(v.x - u.x) + Math.abs(v.y - u.y);
+    if (d < bd) {
+      bd = d;
+      best = v;
+    }
+  }
+  return best;
+}
+function foeInRange(u) {
+  let best = null, bd = u.T.range;
+  for (const v of units) {
+    if (v.dead || v.team === u.team) {
+      continue;
+    }
+    const d = Math.hypot(v.x - u.x, v.y - u.y) - v.r;
+    if (d < bd && (u.T.fly || clearLine(u.x, u.y, v.x, v.y))) {
+      bd = d;
+      best = v;
+    }
+  }
+  return best;
+}
 function meleeReach(u, t) {
   const dx = Math.abs(t.x - u.x), dy = Math.abs(t.y - u.y);
   if (u.T.fly || t.T.fly) {
@@ -3543,6 +3572,20 @@ function think(u, dt) {
     medicThink(u, dt, busy);
     return;
   }
+  const melee = !T.ranged && u.k !== 'flamer' && u.k !== 'bomber';
+  if (melee && u.tgt && (u.tgt.wall !== undefined || !meleeReach(u, u.tgt))) {
+    const near = foeInReach(u);
+    if (near) {
+      u.tgt = near;
+      u.los = true;
+    }
+  } else if (T.ranged && !T.min && u.tgt && u.tgt.wall === undefined && Math.hypot(u.tgt.x - u.x, u.tgt.y - u.y) > T.range + u.tgt.r) {
+    const near = foeInRange(u);
+    if (near) {
+      u.tgt = near;
+      u.los = true;
+    }
+  }
   const t = u.tgt;
   if (!t) {
     return;
@@ -3573,7 +3616,6 @@ function think(u, dt) {
     }
     u.kiteT = 0;
   }
-  const melee = !T.ranged && u.k !== 'flamer' && u.k !== 'bomber';
   const inRange = melee ? meleeReach(u, t) : d <= T.range + t.r + (T.fly || t.T.fly ? 2 : 0) && (!T.min || d >= T.min);
   if (inRange) {
     if (Math.abs(dx) > 2 && !busy) {
