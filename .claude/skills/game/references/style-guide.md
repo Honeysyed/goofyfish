@@ -21,7 +21,26 @@ Use one accent per moment. If everything is yellow, nothing is.
 
 ## Stick figures
 
-- Head: a **solid black circle**, radius about 7.8 at the game's base scale. Never draw a face on the hero.
+### Figure styles
+
+Every game picks one body style. Ask the person which one they want when you pitch (Classic if they don't mind), then set `FIG_STYLE` at the top of the stick figure code. Poses, props, `J` anchors and `pnpm game:motion` work the same in every style.
+
+![Figure styles](figure-styles.png)
+
+| `FIG_STYLE` | Looks like | Good for |
+|---|---|---|
+| `classic` | Solid head, thick torso, grey far limbs | The house hero; one figure doing one thing |
+| `doodle` | Big hollow round head with two line eyes, thin even body | Friendly characters, hats and hoods read well on the big head |
+| `doodleshirt` | Doodle in a shirt (`opts.shirt`) | Teams and crowds: shirt colour tells sides apart (Skirmish) |
+| `sketch` | Hollow wobbly head, thin pen lines that redraw a few times a second | A hand-drawn flipbook feel |
+| `chunky` | Thicker limbs, round mitten hands, little boots | Toy-soldier feel; hands make held props obvious |
+| `googly` | Bigger solid head with googly eyes | The silliest; kids read facing instantly |
+
+You can also set `opts.style` on a single `drawFigure` call, for example one googly boss among classic figures.
+
+### Classic proportions
+
+- Head: a **solid black circle**, radius about 7.8 at the game's base scale. Never draw a face on the classic hero (the other styles bring their own faces).
 - Torso: stroke width 8.5. Legs: 5. Arms: 4.2. Round caps and round joins.
 - Front limbs in ink, back limbs in `#9a9a9a` (this gives depth without shading).
 - Proportions at base scale: thigh and shin about 30 each, upper arm and forearm about 21 each, head centre about 20 above the chest.
@@ -35,6 +54,22 @@ Use one accent per moment. If everything is yellow, nothing is.
 - Keep the back arm by the side or in front. Parked behind the back with the forearm folded forward to the hip, it reads as a broken wing side-on. A startle brings both hands up in front, not one flung out behind the head.
 - Big moves (a slam, a cheer) need a few frames. Snapping a hand somewhere in one or two frames reads as a glitch.
 - Run `pnpm game:motion <slug>` to catch all of this.
+
+### Props and colour
+
+- Props hang off the joints `drawFigure` hands to `under`, `mid` and `over` (head, hands, chest, hip). Give a pose an `ax` prop angle and draw the sword, staff or club along it, so it swings with the arm.
+- A prop can carry colour: wood `#c98a4b`, steel `#d6dde7`, red cloth `#e5484d`, indigo hat `#5552d4`, green hood `#4f9a3c`, potion pink `#e0569b`, gold `#fcd34d`. Keep them flat with an ink outline.
+- Goons get the same props mixed into grey (about 38% colour, 62% `#acacac`), so the sides stay obvious and the props still read.
+
+### Many small figures
+
+For army, crowd or swarm games (see `public/games/skirmish.html`):
+
+- Sort everything by y and draw back to front.
+- Space figures as ovals, wider side to side than front to back: two figures at the same depth need about 1.6 to 1.8 times the room of two figures one behind the other.
+- Melee fighters walk to a slot beside their target at the same depth, so every clash reads as a side-on duel, not a pile. Spread targets: a goon that allies are already hitting scores worse.
+- Leave headroom: a figure reaches about 54 world units above its feet at 0.4 scale, so the top row of the field sits that far below the HUD.
+- Draw tray and legend icons with `fitIcon()`, which measures the drawing and fits it, so hats and staffs never get cut off.
 
 ## World drawing
 

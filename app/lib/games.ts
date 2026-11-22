@@ -56,6 +56,15 @@ const allGames: Game[] = [
     controls: 'hold',
   },
   {
+    slug: 'skirmish',
+    name: 'Skirmish',
+    tagline: 'Drop an army, build fences, watch the brawl',
+    description:
+      'Drop swordsmen, archers, shieldbearers, frost mages, catapults, spiders and more on your side, drag fences to funnel the goons, then hit Fight and watch it play out. Pick an upgrade after every win, survivors earn veteran stars, and twists like bug swarms, the Goon King and the Ant Queen keep coming. Lose your whole army and retry from that round, or take on the daily battle.',
+    addedAt: '2026-11-22',
+    controls: 'tap',
+  },
+  {
     slug: 'gaps',
     name: 'Mind the Gap',
     tagline: 'He never stops running, draw the bridges',

@@ -5,9 +5,11 @@
 // bent-back-elbow  an elbow bends the wrong way (the forearm folds backwards)
 // bent-back-knee   a knee bends the wrong way
 // elbow-out-back   the upper arm swings back and the forearm folds forward to a low hand (a broken wing)
-// jump             a joint of the main figure teleports between frames (a snap)
+// jump             a joint teleports between frames (a snap)
 //
 // It records limbs through the game's strokePath(), so draw figures with drawFigure() from the snippets.
+// drawFigure tags each limb with the figure's id, so every figure on screen is checked on its own, in any
+// figure style. Older games without tags fall back to stroke widths 4.2/5 and the first figure drawn.
 import { chromium } from 'playwright';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
@@ -33,9 +35,11 @@ const errs = [];
 page.on('pageerror', (e) => errs.push(e.message));
 await page.addInitScript(() => {
   window.__frames = [];
+  window.__times = [];
   let cur = [];
-  const tick = () => {
+  const tick = (now) => {
     window.__frames.push(cur);
+    window.__times.push(now);
     cur = [];
     requestAnimationFrame(tick);
   };
@@ -45,8 +49,10 @@ await page.addInitScript(() => {
       return;
     }
     const orig = window.strokePath;
-    const w = function (pts, wd, col) {
-      if (pts && pts.length === 3 && (wd === 4.2 || wd === 5)) {
+    const w = function (pts, wd, col, tag) {
+      if (pts && pts.length === 3 && tag && tag.limb) {
+        cur.push({ k: tag.limb, id: tag.id, p: pts.map((q) => [q[0], q[1]]) });
+      } else if (pts && pts.length === 3 && !tag && (wd === 4.2 || wd === 5)) {
         cur.push({ k: wd === 5 ? 'leg' : 'arm', p: pts.map((q) => [q[0], q[1]]) });
       }
       return orig.apply(this, arguments);
@@ -66,6 +72,12 @@ if (play) {
 }
 await page.waitForTimeout(secs * 1000);
 const frames = await page.evaluate(() => window.__frames);
+const times = await page.evaluate(() => window.__times);
+// A stalled browser frame makes fast limbs look like they snapped, so only judge evenly spaced frames.
+const steady = (i) => {
+  const a = times[i] - times[i - 1], b = times[i + 1] - times[i];
+  return a < 24 && b < 24 && Math.abs(a - b) < 5;
+};
 await browser.close();
 
 const FPS = 60;
@@ -94,26 +106,50 @@ frames.forEach((fr, i) => {
     const { u, v, lu, lv, cross } = bendOf(s);
     if (s.k === 'arm') {
       if (cross > 0.3) {
-        add('bent-back-elbow', i, `arm ${n}`);
+        add('bent-back-elbow', i, `arm ${s.id || n}`);
       }
       if (lu > 1 && lv > 1 && u[0] / lu < -0.55 && v[0] / lv > 0.25 && v[1] > 0) {
-        add('elbow-out-back', i, `arm ${n}`);
+        add('elbow-out-back', i, `arm ${s.id || n}`);
       }
     } else if (cross < -0.3) {
-      add('bent-back-knee', i, `leg ${n}`);
+      add('bent-back-knee', i, `leg ${s.id || n}`);
     }
   });
 });
+const byId = frames.map((fr) => {
+  const m = new Map();
+  for (const s of fr) {
+    if (s.id) {
+      m.set(s.id, s);
+    }
+  }
+  return m;
+});
+const accel = (a, f, c, j) => Math.hypot(c.p[j][0] - 2 * f.p[j][0] + a.p[j][0], c.p[j][1] - 2 * f.p[j][1] + a.p[j][1]);
 for (let i = 1; i < frames.length - 1; i++) {
-  const a = frames[i - 1], f = frames[i], c = frames[i + 1];
-  if (!f.length || a.length !== f.length || c.length !== f.length) {
+  if (!steady(i)) {
     continue;
   }
-  for (let s = 0; s < Math.min(4, f.length); s++) {
+  const a = byId[i - 1], f = byId[i], c = byId[i + 1];
+  for (const [id, s] of f) {
+    const sa = a.get(id), sc = c.get(id);
+    if (!sa || !sc) {
+      continue;
+    }
     for (let j = 1; j < 3; j++) {
-      const acc = Math.hypot(c[s].p[j][0] - 2 * f[s].p[j][0] + a[s].p[j][0], c[s].p[j][1] - 2 * f[s].p[j][1] + a[s].p[j][1]);
-      if (acc > 7) {
-        add('jump', i, `${f[s].k} ${s} joint ${j}`);
+      if (accel(sa, s, sc, j) > 7) {
+        add('jump', i, `${s.k} ${id} joint ${j}`);
+      }
+    }
+  }
+  const fa = frames[i - 1].filter((s) => !s.id), ff = frames[i].filter((s) => !s.id), fc = frames[i + 1].filter((s) => !s.id);
+  if (!ff.length || fa.length !== ff.length || fc.length !== ff.length) {
+    continue;
+  }
+  for (let s = 0; s < Math.min(4, ff.length); s++) {
+    for (let j = 1; j < 3; j++) {
+      if (accel(fa[s], ff[s], fc[s], j) > 7) {
+        add('jump', i, `${ff[s].k} ${s} joint ${j}`);
       }
     }
   }
